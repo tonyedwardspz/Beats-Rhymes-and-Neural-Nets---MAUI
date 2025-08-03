@@ -1,0 +1,17 @@
+meta {
+  name: Generate
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:5038/api/llm/generate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "prompt": "Write a 16 bar hip-hop verse about local llm?"
+  }
+}

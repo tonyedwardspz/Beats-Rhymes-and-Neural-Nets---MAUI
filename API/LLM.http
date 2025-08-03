@@ -1,0 +1,19 @@
+### Get LLM Model Information
+GET https://localhost:7001/api/llm/info
+
+### Generate Response
+POST https://localhost:7001/api/llm/generate
+Content-Type: application/json
+
+{
+  "prompt": "Write me a short blog post about llamasharp?"
+}
+
+### Generate Streaming Response
+POST https://localhost:7001/api/llm/stream
+Content-Type: application/json
+
+{
+  "prompt": "Explain what machine learning is in simple terms."
+}
+
