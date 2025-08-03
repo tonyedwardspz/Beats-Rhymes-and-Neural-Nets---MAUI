@@ -1,16 +1,16 @@
 using API.Services;
+using API.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
 // Add services to the container.
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<LLMConfiguration>(
-builder.Configuration.GetSection(LLMConfiguration.SectionName));
+    builder.Configuration.GetSection(LLMConfiguration.SectionName));
 
 builder.Services.AddSingleton<ILLMModelService, LLMModelService>();
 
@@ -29,6 +29,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapControllers();
+
+// Map endpoint modules
+app.MapLLMEndpoints();
 
 app.Run();
