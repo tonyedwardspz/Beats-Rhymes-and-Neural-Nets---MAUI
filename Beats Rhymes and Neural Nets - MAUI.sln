@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36310.24 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beats Rhymes and Neural Nets - MAUI.AppHost", "Beats Rhymes and Neural Nets - MAUI.AppHost\Beats Rhymes and Neural Nets - MAUI.AppHost.csproj", "{186BFB88-FCEC-493F-B561-4DD73E7D8471}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beats Rhymes and Neural Nets - MAUI.ServiceDefaults", "Beats Rhymes and Neural Nets - MAUI.ServiceDefaults\Beats Rhymes and Neural Nets - MAUI.ServiceDefaults.csproj", "{62187966-C460-2D7C-2DA5-30AF4FC2A1AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{186BFB88-FCEC-493F-B561-4DD73E7D8471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{186BFB88-FCEC-493F-B561-4DD73E7D8471}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{186BFB88-FCEC-493F-B561-4DD73E7D8471}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{186BFB88-FCEC-493F-B561-4DD73E7D8471}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62187966-C460-2D7C-2DA5-30AF4FC2A1AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62187966-C460-2D7C-2DA5-30AF4FC2A1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62187966-C460-2D7C-2DA5-30AF4FC2A1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62187966-C460-2D7C-2DA5-30AF4FC2A1AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {69C74D5A-1DCB-4BA0-8718-0D386D50215C}
+	EndGlobalSection
+EndGlobal
