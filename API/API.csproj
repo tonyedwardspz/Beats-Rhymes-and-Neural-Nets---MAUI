@@ -10,4 +10,9 @@
     <ProjectReference Include="..\Beats Rhymes and Neural Nets - MAUI.ServiceDefaults\Beats Rhymes and Neural Nets - MAUI.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LLamaSharp" Version="0.24.0" />
+    <PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.24.0" />
+  </ItemGroup>
+
 </Project>
