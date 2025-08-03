@@ -10,7 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<LLMConfiguration>(
-    builder.Configuration.GetSection(LLMConfiguration.SectionName));
+builder.Configuration.GetSection(LLMConfiguration.SectionName));
 
 builder.Services.AddSingleton<ILLMModelService, LLMModelService>();
 

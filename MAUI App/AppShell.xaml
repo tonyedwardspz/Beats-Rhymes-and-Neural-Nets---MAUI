@@ -4,11 +4,78 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MAUI_App"
-    Title="MAUI_App">
+    xmlns:views="clr-namespace:MAUI_App.Views"
+    Title="Beats, Rhymes, and Neural Nets"
+    FlyoutBehavior="Flyout">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <!-- 
+    The FlyoutBehavior can be set to 
+    - Flyout: Shows the hamburger icon which opens the flyout menu
+    - Locked: Always shows the flyout (good for tablets/desktop)
+    - Disabled: No flyout menu
+    -->
+
+    <!-- Flyout Header -->
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="#2196F3" HeightRequest="200">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <Image Source="dotnet_bot.png" 
+                   Grid.Row="0"
+                   Aspect="AspectFit"
+                   HeightRequest="100"
+                   WidthRequest="100"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+            
+            <Label Grid.Row="1" 
+                   Text="Beats, Rhymes, and Neural Nets"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,20" />
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Flyout Footer -->
+    <Shell.FlyoutFooter>
+        <Grid BackgroundColor="#E0E0E0" HeightRequest="50">
+            <Label Text="v1.0.0" 
+                   FontSize="12"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
+    </Shell.FlyoutFooter>
+
+    <!-- Flyout Items -->
+    <FlyoutItem Title="Home">
+        <ShellContent Title="Home"
+                      ContentTemplate="{DataTemplate local:MainPage}"
+                      Route="MainPage" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="LLM Chat">
+        <ShellContent Title="LLM Chat"
+                      ContentTemplate="{DataTemplate views:LLMPage}"
+                      Route="LLMPage" />
+    </FlyoutItem>
+
+    <!-- You can add more flyout items here -->
+    <FlyoutItem Title="Settings">
+        <ShellContent Title="Settings"
+                      ContentTemplate="{DataTemplate views:SettingsPage}"
+                      Route="SettingsPage" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="About">
+        <ShellContent Title="About"
+                      ContentTemplate="{DataTemplate views:AboutPage}"
+                      Route="AboutPage" />
+    </FlyoutItem>
 
 </Shell>

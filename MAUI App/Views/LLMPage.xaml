@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MAUI_App.Views.LLMPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:MAUI_App.Converters"
+             Title="LLM Chat">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="15" Padding="20">
+            
+            <!-- Model Status Section -->
+            <Frame BackgroundColor="LightBlue" Padding="10">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Model Status" FontSize="16" FontAttributes="Bold" />
+                    <Label Text="{Binding ModelInfo}" />
+                    <Label Text="{Binding StatusMessage}" />
+                    <Button Text="Refresh Model Info" Command="{Binding CheckModelInfoCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Input Section -->
+            <Frame BackgroundColor="LightGray" Padding="10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Enter your prompt:" FontSize="16" FontAttributes="Bold" />
+                    <Editor Text="{Binding Prompt}" 
+                            Placeholder="Type your prompt here..."
+                            HeightRequest="100"
+                            IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0"
+                                Text="Generate Response" 
+                                Command="{Binding GenerateCommand}"
+                                IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
+                        
+                        <Button Grid.Column="1"
+                                Text="Stream Response" 
+                                Command="{Binding GenerateStreamingCommand}"
+                                IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Response Section -->
+            <Frame BackgroundColor="LightGreen" Padding="10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Response:" FontSize="16" FontAttributes="Bold" />
+                    
+                    <ActivityIndicator IsVisible="{Binding IsGenerating}" 
+                                     IsRunning="{Binding IsGenerating}"
+                                     Color="Blue" />
+                    
+                    <ScrollView HeightRequest="300">
+                        <Label Text="{Binding Response}" 
+                               IsVisible="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}"
+                               LineBreakMode="WordWrap" />
+                    </ScrollView>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

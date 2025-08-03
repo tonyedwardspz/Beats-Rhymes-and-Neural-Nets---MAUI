@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MAUI_App.Views.AboutPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="About">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="20">
+            
+            <!-- App Logo and Title -->
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Image Source="dotnet_bot.png" 
+                       HeightRequest="120" 
+                       WidthRequest="120" />
+                
+                <Label Text="Beats, Rhymes, and Neural Nets" 
+                       FontSize="24" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center" />
+                
+                <Label Text="Version 1.0.0" 
+                       FontSize="16" 
+                       TextColor="Gray" 
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Description -->
+            <Frame BackgroundColor="LightBlue" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="About This App" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" />
+                    
+                    <Label Text="This MAUI application demonstrates how to interface with a Large Language Model (LLM) API. It provides both standard and streaming response generation capabilities with a clean, modern user interface."
+                           LineBreakMode="WordWrap" 
+                           TextColor="Black" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Features -->
+            <Frame BackgroundColor="LightGreen" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Features" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" />
+                    
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="• Real-time LLM model status monitoring" />
+                        <Label Text="• Standard text generation" />
+                        <Label Text="• Streaming response generation" />
+                        <Label Text="• Configurable API settings" />
+                        <Label Text="• Modern flyout navigation" />
+                        <Label Text="• Cross-platform compatibility" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Technology Stack -->
+            <Frame BackgroundColor="LightYellow" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Technology Stack" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" />
+                    
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Framework:" FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="1" Text=".NET 9 MAUI" />
+                        
+                        <Label Grid.Row="1" Grid.Column="0" Text="Backend:" FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="ASP.NET Core Web API" />
+                        
+                        <Label Grid.Row="2" Grid.Column="0" Text="LLM Library:" FontAttributes="Bold" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="LLamaSharp" />
+                        
+                        <Label Grid.Row="3" Grid.Column="0" Text="Pattern:" FontAttributes="Bold" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="MVVM with Dependency Injection" />
+                        
+                        <Label Grid.Row="4" Grid.Column="0" Text="Platforms:" FontAttributes="Bold" />
+                        <Label Grid.Row="4" Grid.Column="1" Text="Windows, macOS, iOS, Android" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Developer Info -->
+            <Frame BackgroundColor="LightCoral" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Developer" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" />
+                    
+                    <Label Text="Built with ❤️ for demonstration purposes" 
+                           HorizontalOptions="Center" />
+                    
+                    <Button Text="View Source Code" 
+                            BackgroundColor="DarkBlue" 
+                            TextColor="White"
+                            Clicked="OnViewSourceClicked" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- System Information -->
+            <Frame BackgroundColor="LightGray" Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="System Information" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" />
+                    
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Device:" FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="1" x:Name="DeviceModelLabel" />
+                        
+                        <Label Grid.Row="1" Grid.Column="0" Text="Platform:" FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.Column="1" x:Name="PlatformLabel" />
+                        
+                        <Label Grid.Row="2" Grid.Column="0" Text="OS Version:" FontAttributes="Bold" />
+                        <Label Grid.Row="2" Grid.Column="1" x:Name="OSVersionLabel" />
+                        
+                        <Label Grid.Row="3" Grid.Column="0" Text="App Version:" FontAttributes="Bold" />
+                        <Label Grid.Row="3" Grid.Column="1" x:Name="AppVersionLabel" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
