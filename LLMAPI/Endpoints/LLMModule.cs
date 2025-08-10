@@ -1,7 +1,7 @@
-using API.Services;
+using LLMAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Endpoints;
+namespace LLMAPI.Endpoints;
 
 public static class LLMModule
 {

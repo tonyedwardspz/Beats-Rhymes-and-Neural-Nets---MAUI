@@ -1,5 +1,5 @@
-using API.Services;
-using API.Endpoints;
+using LLMAPI.Services;
+using LLMAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 

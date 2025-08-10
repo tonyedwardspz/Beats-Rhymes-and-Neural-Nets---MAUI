@@ -1,4 +1,4 @@
-namespace API.Services;
+namespace LLMAPI.Services;
 
 public interface ILLMModelService
 {

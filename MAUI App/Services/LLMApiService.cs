@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace MAUI_App.Services;
 
 /// <summary>
-/// Service for communicating with the LLM API
+/// Service for communicating with the LLM LLMAPI
 /// </summary>
 public class LLMApiService : ILLMApiService, IDisposable
 {
@@ -42,7 +42,7 @@ public class LLMApiService : ILLMApiService, IDisposable
     {
         try
         {
-            _logger.LogInformation("Requesting model information from API");
+            _logger.LogInformation("Requesting model information from LLMAPI");
             
             var response = await _httpClient.GetAsync("/api/llm/info");
             
@@ -64,13 +64,13 @@ public class LLMApiService : ILLMApiService, IDisposable
                 response.StatusCode, errorContent);
             
             return ApiResult<ModelInfoResponse>.Failure(
-                $"API request failed with status {response.StatusCode}", 
+                $"LLMAPI request failed with status {response.StatusCode}", 
                 (int)response.StatusCode);
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Network error while requesting model info");
-            return ApiResult<ModelInfoResponse>.Failure("Network error: Unable to connect to API");
+            return ApiResult<ModelInfoResponse>.Failure("Network error: Unable to connect to LLMAPI");
         }
         catch (TaskCanceledException ex)
         {
@@ -144,7 +144,7 @@ public class LLMApiService : ILLMApiService, IDisposable
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Network error while generating response");
-            return ApiResult<GenerateResponse>.Failure("Network error: Unable to connect to API");
+            return ApiResult<GenerateResponse>.Failure("Network error: Unable to connect to LLMAPI");
         }
         catch (TaskCanceledException ex)
         {
@@ -191,7 +191,7 @@ public class LLMApiService : ILLMApiService, IDisposable
                     response.StatusCode, errorContent);
                 
                 return ApiResult<string>.Failure(
-                    $"API request failed with status {response.StatusCode}", 
+                    $"LLMAPI request failed with status {response.StatusCode}", 
                     (int)response.StatusCode);
             }
             
@@ -223,7 +223,7 @@ public class LLMApiService : ILLMApiService, IDisposable
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Network error while streaming response");
-            return ApiResult<string>.Failure("Network error: Unable to connect to API");
+            return ApiResult<string>.Failure("Network error: Unable to connect to LLMAPI");
         }
         catch (TaskCanceledException ex)
         {

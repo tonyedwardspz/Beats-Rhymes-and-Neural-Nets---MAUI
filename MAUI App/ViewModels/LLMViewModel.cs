@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace MAUI_App.ViewModels;
 
 /// <summary>
-/// Example ViewModel demonstrating how to use the LLM API service
+/// Example ViewModel demonstrating how to use the LLM LLMAPI service
 /// </summary>
 public class LLMViewModel : INotifyPropertyChanged
 {

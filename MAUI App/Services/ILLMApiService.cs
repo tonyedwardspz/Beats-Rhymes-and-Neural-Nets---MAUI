@@ -3,7 +3,7 @@ using MAUI_App.Models;
 namespace MAUI_App.Services;
 
 /// <summary>
-/// Interface for LLM API service operations
+/// Interface for LLM LLMAPI service operations
 /// </summary>
 public interface ILLMApiService
 {
@@ -35,7 +35,7 @@ public interface ILLMApiService
 }
 
 /// <summary>
-/// Result wrapper for API operations
+/// Result wrapper for LLMAPI operations
 /// </summary>
 /// <typeparam name="T">The type of the result data</typeparam>
 public class ApiResult<T>

@@ -21,7 +21,7 @@ public record ModelInfoResponse(string ModelInfo, bool IsReady);
 public record ErrorResponse(string Error);
 
 /// <summary>
-/// Configuration for API settings
+/// Configuration for LLMAPI settings
 /// </summary>
 public class ApiConfiguration
 {

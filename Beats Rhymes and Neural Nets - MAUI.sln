@@ -6,9 +6,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beats Rhymes and Neural Net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beats Rhymes and Neural Nets - MAUI.ServiceDefaults", "Beats Rhymes and Neural Nets - MAUI.ServiceDefaults\Beats Rhymes and Neural Nets - MAUI.ServiceDefaults.csproj", "{62187966-C460-2D7C-2DA5-30AF4FC2A1AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLMAPI", "LLMAPI\LLMAPI.csproj", "{CBFA08EA-AECE-205F-7B85-326FD0B81BAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MAUI App", "MAUI App\MAUI App.csproj", "{954D0E87-9E2F-4D70-94D9-0CDAA4F9ABA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhisperAPI", "WhisperAPI\WhisperAPI.csproj", "{4F8703A6-0F51-4CA8-A923-CD57C538E24B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{954D0E87-9E2F-4D70-94D9-0CDAA4F9ABA6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{954D0E87-9E2F-4D70-94D9-0CDAA4F9ABA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{954D0E87-9E2F-4D70-94D9-0CDAA4F9ABA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F8703A6-0F51-4CA8-A923-CD57C538E24B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F8703A6-0F51-4CA8-A923-CD57C538E24B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F8703A6-0F51-4CA8-A923-CD57C538E24B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F8703A6-0F51-4CA8-A923-CD57C538E24B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

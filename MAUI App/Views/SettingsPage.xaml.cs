@@ -11,7 +11,7 @@ public partial class SettingsPage : ContentPage
     private void LoadSettings()
     {
         // Load saved settings from preferences
-        ApiUrlEntry.Text = Preferences.Get("ApiUrl", "http://localhost:5000");
+        ApiUrlEntry.Text = Preferences.Get("ApiUrl", "http://localhost:5038");
         ThemePicker.SelectedItem = Preferences.Get("Theme", "System");
         TimeoutSlider.Value = Preferences.Get("TimeoutMinutes", 5.0);
         AutoSaveSwitch.IsToggled = Preferences.Get("AutoSave", false);

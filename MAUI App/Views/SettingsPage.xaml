@@ -17,10 +17,10 @@
                     
                     <!-- API Configuration -->
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="API Base URL:" FontAttributes="Bold" />
+                        <Label Text="LLMAPI Base URL:" FontAttributes="Bold" />
                         <Entry x:Name="ApiUrlEntry" 
                                Text="http://localhost:5000"
-                               Placeholder="Enter API URL" />
+                               Placeholder="Enter LLMAPI URL" />
                     </VerticalStackLayout>
                     
                     <!-- Theme Selection -->

@@ -19,14 +19,14 @@ namespace MAUI_App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            // Configure API settings
+            // Configure LLMAPI settings
             builder.Services.Configure<ApiConfiguration>(config =>
             {
                 config.BaseUrl = "http://localhost:5038";
                 config.Timeout = TimeSpan.FromMinutes(5);
             });
 
-            // Register HTTP client and API service
+            // Register HTTP client and LLMAPI service
             builder.Services.AddHttpClient<ILLMApiService, LLMApiService>();
             
             // Register ViewModels

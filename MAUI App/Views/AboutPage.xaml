@@ -32,7 +32,7 @@
                            FontAttributes="Bold" 
                            HorizontalOptions="Center" />
                     
-                    <Label Text="This MAUI application demonstrates how to interface with a Large Language Model (LLM) API. It provides both standard and streaming response generation capabilities with a clean, modern user interface."
+                    <Label Text="This MAUI application demonstrates how to interface with a Large Language Model (LLM) LLMAPI. It provides both standard and streaming response generation capabilities with a clean, modern user interface."
                            LineBreakMode="WordWrap" 
                            TextColor="Black" />
                 </VerticalStackLayout>
@@ -50,7 +50,7 @@
                         <Label Text="• Real-time LLM model status monitoring" />
                         <Label Text="• Standard text generation" />
                         <Label Text="• Streaming response generation" />
-                        <Label Text="• Configurable API settings" />
+                        <Label Text="• Configurable LLMAPI settings" />
                         <Label Text="• Modern flyout navigation" />
                         <Label Text="• Cross-platform compatibility" />
                     </VerticalStackLayout>
@@ -70,7 +70,7 @@
                         <Label Grid.Row="0" Grid.Column="1" Text=".NET 9 MAUI" />
                         
                         <Label Grid.Row="1" Grid.Column="0" Text="Backend:" FontAttributes="Bold" />
-                        <Label Grid.Row="1" Grid.Column="1" Text="ASP.NET Core Web API" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="ASP.NET Core Web LLMAPI" />
                         
                         <Label Grid.Row="2" Grid.Column="0" Text="LLM Library:" FontAttributes="Bold" />
                         <Label Grid.Row="2" Grid.Column="1" Text="LLamaSharp" />

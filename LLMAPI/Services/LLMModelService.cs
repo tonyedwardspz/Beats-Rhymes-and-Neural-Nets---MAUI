@@ -1,4 +1,4 @@
-namespace API.Services;
+namespace LLMAPI.Services;
 
 using LLama;
 using LLama.Common;
