@@ -1,0 +1,6 @@
+@WhisperAPI_HostAddress = http://localhost:5087
+
+GET {{WhisperAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
