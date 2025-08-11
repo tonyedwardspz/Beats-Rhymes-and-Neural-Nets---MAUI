@@ -4,8 +4,14 @@ meta {
   seq: 5
 }
 
-get {
-  url: http://localhost:5087/weatherforcast
-  body: none
+post {
+  url: http://localhost:5087/api/whisper/transcribe
+  body: json
   auth: none
+}
+
+body:json {
+  {
+      "filePath": "kennedy.wav"
+  }
 }
