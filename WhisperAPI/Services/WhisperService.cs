@@ -1,13 +1,16 @@
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Mvc;
 using Whisper.net;
 using Whisper.net.Ggml;
 using Whisper.net.Logger;
+using WhisperAPI.Endpoints;
 
 namespace WhisperAPI.Services;
 
 public interface IWhisperService
 {
-    Task<JsonArray> TranscribeFileAsync(string filePath);
+    Task<JsonArray> TranscribeFilePathAsync(string filePath);
+    Task<JsonArray> TranscribeFileAsync(IWhisperService whisperService, TranscribeWavRequest request);
     Task<string> GetModelDetailsAsync();
 }
 
@@ -33,7 +36,7 @@ public class WhisperService : IWhisperService
         _logger.LogInformation("WhisperFactory initialized successfully");
     }
 
-    public async Task<JsonArray> TranscribeFileAsync(string filePath)
+    public async Task<JsonArray> TranscribeFilePathAsync(string filePath)
     {
         if (!File.Exists(filePath))
         {
@@ -53,6 +56,69 @@ public class WhisperService : IWhisperService
         }
 
         return results;
+    }
+
+    // public Task<JsonArray> TranscribeFileAsync(IFormFile file)
+    // {
+    //     throw new NotImplementedException();
+    // }
+
+    public async Task<JsonArray> TranscribeFileAsync(IWhisperService whisperService, [FromForm] TranscribeWavRequest request)
+    {
+        try
+        {
+            if (request.File == null || request.File.Length == 0)
+            {
+                // return Results.BadRequest("No file provided or file is empty");
+                return new JsonArray();
+            }
+
+            // Check if it's a WAV file
+            if (!request.File.ContentType.Equals("audio/wav", StringComparison.OrdinalIgnoreCase) &&
+                !request.File.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+            {
+                // return Results.BadRequest("File must be a WAV audio file");
+                return new JsonArray();
+            }
+
+            // Create a temporary file path
+            var tempFilePath = Path.GetTempFileName();
+            try
+            {
+                // Save the uploaded file to temp location
+                using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                {
+                    await request.File.CopyToAsync(stream);
+                }
+
+                // Create a new IFormFile from the temporary file
+                var tempFile = new FormFile(
+                    new FileStream(tempFilePath, FileMode.Open),
+                    0,
+                    request.File.Length,
+                    request.File.Name,
+                    request.File.FileName
+                );
+
+                // Transcribe the file
+                var results = await whisperService.TranscribeFilePathAsync(tempFilePath);
+                return results;
+            }
+            finally
+            {
+                // Clean up the temporary file
+                if (File.Exists(tempFilePath))
+                {
+                    File.Delete(tempFilePath);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // return Results.Problem($"Transcription failed: {ex.Message}");
+            return new JsonArray();
+        }
+        
     }
 
     public async Task<string> GetModelDetailsAsync()

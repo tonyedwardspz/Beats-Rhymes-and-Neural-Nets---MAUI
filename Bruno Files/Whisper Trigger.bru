@@ -6,7 +6,7 @@ meta {
 
 post {
   url: http://localhost:5087/api/whisper/transcribe
-  body: json
+  body: multipartForm
   auth: none
 }
 
@@ -14,4 +14,12 @@ body:json {
   {
       "filePath": "kennedy.wav"
   }
+}
+
+body:form-urlencoded {
+  : 
+}
+
+body:multipart-form {
+  file: @file()
 }

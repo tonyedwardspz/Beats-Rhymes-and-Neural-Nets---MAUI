@@ -13,7 +13,8 @@ public static class TranscriptionModule
             .WithTags("Whisper");
 
         group.MapGet("modelDetails", GetModelDetails);
-        group.MapPost("transcribe", TranscribeFile);
+        group.MapPost("transcribe", TranscribeFilePath);
+        group.MapPost("transcribe-wav", TranscribeFile).DisableAntiforgery();
     }
 
     private static async Task<string> GetModelDetails(IWhisperService whisperService)
@@ -21,11 +22,28 @@ public static class TranscriptionModule
         return await whisperService.GetModelDetailsAsync();
     }
 
-    private static async Task<IResult> TranscribeFile(IWhisperService whisperService, [FromBody] TranscribeRequest request)
+    private static async Task<IResult> TranscribeFilePath(IWhisperService whisperService, [FromBody] TranscribeFilePathRequest request)
     {
         try
         {
-            var results = await whisperService.TranscribeFileAsync(request.FilePath);
+            var results = await whisperService.TranscribeFilePathAsync(request.FilePath);
+            return Results.Ok(results);
+        }
+        catch (FileNotFoundException ex)
+        {
+            return Results.NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Transcription failed: {ex.Message}");
+        }
+    }
+
+    private static async Task<IResult> TranscribeFile(IWhisperService whisperService, [FromForm] TranscribeWavRequest request)
+    {
+        try
+        {
+            var results = await whisperService.TranscribeFileAsync(whisperService, request);
             return Results.Ok(results);
         }
         catch (FileNotFoundException ex)
@@ -39,5 +57,5 @@ public static class TranscriptionModule
     }
 }
 
-public record TranscribeRequest(string FilePath);
-public record TranscribeRequest(string FilePath);
+public record TranscribeFilePathRequest(string FilePath);
+public record TranscribeWavRequest(IFormFile File);
