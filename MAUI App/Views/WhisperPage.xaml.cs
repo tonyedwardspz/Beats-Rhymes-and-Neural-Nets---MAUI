@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MAUI_App.ViewModels;
 
 namespace MAUI_App.Views;
 
 public partial class WhisperPage : ContentPage
 {
-    public WhisperPage(ViewModels.WhisperPageViewModel whisperPageViewModel)
+    public WhisperPage(WhisperPageViewModel viewmodel)
     {
         InitializeComponent();
-        BindingContext = whisperPageViewModel;
+        BindingContext = viewmodel;
     }
 }

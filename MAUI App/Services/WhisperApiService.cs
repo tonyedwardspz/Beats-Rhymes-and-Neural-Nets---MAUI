@@ -67,16 +67,6 @@ public class WhisperApiService : IWhisperApiService, IDisposable
                 $"WhisperAPI request failed with status {response.StatusCode}", 
                 (int)response.StatusCode);
         }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "Network error while requesting model details");
-            return ApiResult<string>.Failure("Network error: Unable to connect to WhisperAPI");
-        }
-        catch (TaskCanceledException ex)
-        {
-            _logger.LogError(ex, "Request timeout while getting model details");
-            return ApiResult<string>.Failure("Request timeout");
-        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while getting model details");
@@ -137,21 +127,6 @@ public class WhisperApiService : IWhisperApiService, IDisposable
             return ApiResult<TranscriptionResponse>.Failure(
                 $"WhisperAPI transcription failed with status {response.StatusCode}", 
                 (int)response.StatusCode);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogInformation("Transcription request was cancelled");
-            return ApiResult<TranscriptionResponse>.Failure("Request was cancelled", 499);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "Network error while transcribing audio");
-            return ApiResult<TranscriptionResponse>.Failure("Network error: Unable to connect to WhisperAPI");
-        }
-        catch (TaskCanceledException ex)
-        {
-            _logger.LogError(ex, "Request timeout while transcribing audio");
-            return ApiResult<TranscriptionResponse>.Failure("Request timeout");
         }
         catch (Exception ex)
         {

@@ -82,7 +82,6 @@ public class WhisperPageViewModel : BaseViewModel
 		if (await CheckPermissionIsGrantedAsync<Microphone>())
 		{
 			audioRecorder = audioManager.CreateRecorder();
-
 			var options = new AudioRecorderOptions
 			{
 				Channels = ChannelType.Mono,
@@ -138,6 +137,12 @@ public class WhisperPageViewModel : BaseViewModel
 			// Get the audio stream from the audio source
 			using var audioStream = audioSource.GetAudioStream();
 			
+			// Ensure stream position is at the beginning
+			if (audioStream.CanSeek)
+			{
+				audioStream.Position = 0;
+			}
+			
 			// Send to Whisper API for transcription
 			var result = await whisperApiService.TranscribeWavAsync(audioStream, "recording.wav");
 			
@@ -152,7 +157,7 @@ public class WhisperPageViewModel : BaseViewModel
 			}
 		}
 		catch (Exception ex)
-		{
+		{ 
 			TranscriptionResult = $"Error: {ex.Message}";
 		}
 		finally

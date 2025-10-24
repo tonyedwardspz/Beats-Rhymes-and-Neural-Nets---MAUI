@@ -2,6 +2,7 @@
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
 using WhisperAPI.Services;
+using WhisperAPI.Models;
 
 namespace WhisperAPI.Endpoints;
 
@@ -27,7 +28,12 @@ public static class TranscriptionModule
         try
         {
             var results = await whisperService.TranscribeFilePathAsync(request.FilePath);
-            return Results.Ok(results);
+            
+            // Convert JsonArray to string array
+            var stringResults = results.Select(node => node?.ToString() ?? string.Empty).ToArray();
+            
+            var response = new TranscriptionResponse(stringResults);
+            return Results.Ok(response);
         }
         catch (FileNotFoundException ex)
         {
@@ -44,7 +50,12 @@ public static class TranscriptionModule
         try
         {
             var results = await whisperService.TranscribeFileAsync(whisperService, request);
-            return Results.Ok(results);
+            
+            // Convert JsonArray to string array
+            var stringResults = results.Select(node => node?.ToString() ?? string.Empty).ToArray();
+            
+            var response = new TranscriptionResponse(stringResults);
+            return Results.Ok(response);
         }
         catch (FileNotFoundException ex)
         {
