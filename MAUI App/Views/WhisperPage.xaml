@@ -8,7 +8,7 @@
     <ContentPage.Content>
         
             <Grid Margin="20" RowSpacing="10"
-                  VerticalOptions="Center" RowDefinitions="*,*,*,*,*,*,*,200,*">
+                  VerticalOptions="Center" RowDefinitions="*,*,*,*,*,*,*,*,*,200">
                     <Label Text="This is the recording page" Grid.Row="1" />
                     
                     <Button Grid.Row="2"
@@ -27,15 +27,25 @@
 					Text="Play Recording"
 					Command="{Binding PlayCommand}" />
 
-			<Button Grid.Row="6"
+                    <Button Grid.Row="6"
 					Text="Stop Play Recording"
 					Command="{Binding StopPlayCommand}" />
+
+                    <Button Grid.Row="7"
+                            Text="Start Chunked Transcription"
+                            Command="{Binding StartChunkedCommand}"
+                            BackgroundColor="Orange" />
+
+                    <Button Grid.Row="8"
+                            Text="Stop Chunked Transcription"
+                            Command="{Binding StopChunkedCommand}"
+                            BackgroundColor="Red" />
                 
                     
                     
                     
                         <Label Text="{Binding TranscriptionResult}"
-                               Grid.Row="7"
+                               Grid.Row="9"
                                FontSize="14"
                                TextColor="Black"
                                BackgroundColor="LightGray"

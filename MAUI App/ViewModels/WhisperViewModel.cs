@@ -1,4 +1,7 @@
 
+using System.Threading;
+using Plugin.Maui.Audio;
+
 namespace MAUI_App.ViewModels;
 
 public class WhisperPageViewModel : BaseViewModel
@@ -9,6 +12,11 @@ public class WhisperPageViewModel : BaseViewModel
 	IAudioRecorder? audioRecorder;
 	IAudioSource? audioSource = null;
 	AsyncAudioPlayer? audioPlayer;
+	
+	// Chunked transcription properties
+	private Timer? chunkedTimer;
+	private bool isChunkedRecording = false;
+	private int chunkCounter = 0;
 
 	public bool IsRecording
 	{
@@ -54,6 +62,8 @@ public class WhisperPageViewModel : BaseViewModel
 	public Command ProcessCommand { get; }
 	public Command StopPlayCommand { get; }
 	public Command PlayCommand { get; }
+	public Command StartChunkedCommand { get; }
+	public Command StopChunkedCommand { get; }
 
 	public WhisperPageViewModel(
 		IAudioManager audioManager,
@@ -65,6 +75,8 @@ public class WhisperPageViewModel : BaseViewModel
 		ProcessCommand = new Command(Process);
 		PlayCommand = new Command(PlayAudio, () => !IsPlaying);
 		StopPlayCommand = new Command(StopPlay, () => IsPlaying);
+		StartChunkedCommand = new Command(StartChunkedTranscription, () => !isChunkedRecording);
+		StopChunkedCommand = new Command(StopChunkedTranscription, () => isChunkedRecording);
 
 
 		this.audioManager = audioManager;
@@ -179,5 +191,98 @@ public class WhisperPageViewModel : BaseViewModel
 	void StopPlay()
 	{
 		audioPlayer.Stop();
+	}
+
+	async void StartChunkedTranscription()
+	{
+		if (await CheckPermissionIsGrantedAsync<Microphone>())
+		{
+			// Clear previous results
+			TranscriptionResult = "Starting chunked transcription...\n";
+			chunkCounter = 0;
+			isChunkedRecording = true;
+			
+			// Start the timer for 2-second intervals
+			chunkedTimer = new Timer(ProcessChunk, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+			
+			// Update command states
+			StartChunkedCommand.ChangeCanExecute();
+			StopChunkedCommand.ChangeCanExecute();
+		}
+	}
+
+	void StopChunkedTranscription()
+	{
+		isChunkedRecording = false;
+		chunkedTimer?.Dispose();
+		chunkedTimer = null;
+		
+		// Update command states
+		StartChunkedCommand.ChangeCanExecute();
+		StopChunkedCommand.ChangeCanExecute();
+		
+		TranscriptionResult += "\n--- Chunked transcription stopped ---";
+	}
+
+	async void ProcessChunk(object? state)
+	{
+		if (!isChunkedRecording) return;
+
+		try
+		{
+			// Create a new recorder for this chunk
+			var chunkRecorder = audioManager.CreateRecorder();
+			var options = new AudioRecorderOptions
+			{
+				Channels = ChannelType.Mono,
+				BitDepth = BitDepth.Pcm16bit,
+				Encoding = Plugin.Maui.Audio.Encoding.Wav,
+				ThrowIfNotSupported = true,
+				SampleRate = 16000
+			};
+
+			// Record for 2 seconds
+			await chunkRecorder.StartAsync(options);
+			await Task.Delay(2000); // Record for 2 seconds
+			var chunkAudioSource = await chunkRecorder.StopAsync();
+
+			if (chunkAudioSource != null)
+			{
+				// Process the chunk
+				using var audioStream = chunkAudioSource.GetAudioStream();
+				if (audioStream.CanSeek)
+				{
+					audioStream.Position = 0;
+				}
+
+				var result = await whisperApiService.TranscribeWavAsync(audioStream, $"chunk_{chunkCounter}.wav");
+				
+				await dispatcher.DispatchAsync(() =>
+				{
+					if (result.IsSuccess && result.Data != null && result.Data.Results.Length > 0)
+					{
+						var timeRange = $"{chunkCounter * 2} - {(chunkCounter + 1) * 2}s";
+						var transcription = string.Join(" ", result.Data.Results);
+						TranscriptionResult += $"{timeRange} --> {transcription}\n";
+					}
+					else
+					{
+						var timeRange = $"{chunkCounter * 2} - {(chunkCounter + 1) * 2}s";
+						TranscriptionResult += $"{timeRange} --> [No speech detected]\n";
+					}
+				});
+			}
+		}
+		catch (Exception ex)
+		{
+			await dispatcher.DispatchAsync(() =>
+			{
+				TranscriptionResult += $"Error in chunk {chunkCounter}: {ex.Message}\n";
+			});
+		}
+		finally
+		{
+			chunkCounter++;
+		}
 	}
 }
