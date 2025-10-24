@@ -2,10 +2,46 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MAUI_App.ViewModels"
+             x:DataType="vm:WhisperPageViewModel"
              x:Class="MAUI_App.Views.WhisperPage">
     <ContentPage.Content>
         
-        <Label Text="This is the recording page" />
+            <Grid Margin="20" RowSpacing="10"
+                  VerticalOptions="Center" RowDefinitions="*,*,*,*,*,*,*,200,*">
+                    <Label Text="This is the recording page" Grid.Row="1" />
+                    
+                    <Button Grid.Row="2"
+                            Text="Start Recording"
+                            Command="{Binding StartCommand}" />
+                    
+                    <Button Grid.Row="3"
+                            Text="Stop Recording"
+                            Command="{Binding StopCommand}" />
+                    
+                    <Button Grid.Row="4"
+                            Text="Transcribe"
+                            Command="{Binding ProcessCommand}" />
+
+                    <Button Grid.Row="5"
+					Text="Play Recording"
+					Command="{Binding PlayCommand}" />
+
+			<Button Grid.Row="6"
+					Text="Stop Play Recording"
+					Command="{Binding StopPlayCommand}" />
+                
+                    
+                    
+                    
+                        <Label Text="{Binding TranscriptionResult}"
+                               Grid.Row="7"
+                               FontSize="14"
+                               TextColor="Black"
+                               BackgroundColor="LightGray"
+                               Padding="10"
+                               VerticalOptions="Start" />
+            </Grid>
         
     </ContentPage.Content>
 </ContentPage>

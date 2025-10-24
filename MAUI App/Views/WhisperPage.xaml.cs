@@ -8,8 +8,9 @@ namespace MAUI_App.Views;
 
 public partial class WhisperPage : ContentPage
 {
-    public WhisperPage()
+    public WhisperPage(ViewModels.WhisperPageViewModel whisperPageViewModel)
     {
         InitializeComponent();
+        BindingContext = whisperPageViewModel;
     }
 }

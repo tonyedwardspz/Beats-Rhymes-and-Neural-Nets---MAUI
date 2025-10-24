@@ -64,6 +64,12 @@
                       ContentTemplate="{DataTemplate views:LLMPage}"
                       Route="LLMPage" />
     </FlyoutItem>
+    
+    <FlyoutItem Title="Whisper Transcription">
+        <ShellContent Title="Whisper Transcription"
+                      ContentTemplate="{DataTemplate views:WhisperPage}"
+                      Route="WhisperPage" />
+    </FlyoutItem>
 
     <!-- You can add more flyout items here -->
     <FlyoutItem Title="Settings">

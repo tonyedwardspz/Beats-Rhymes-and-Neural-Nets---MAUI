@@ -81,8 +81,8 @@ public class WhisperService : IWhisperService
                 return new JsonArray();
             }
 
-            // Create a temporary file path
-            var tempFilePath = Path.GetTempFileName();
+            // Create a temporary WAV file path
+            var tempFilePath = Path.Combine(Path.GetTempPath(), request.File.FileName);
             try
             {
                 // Save the uploaded file to temp location
@@ -115,7 +115,7 @@ public class WhisperService : IWhisperService
         }
         catch (Exception ex)
         {
-            // return Results.Problem($"Transcription failed: {ex.Message}");
+            _logger.LogError(ex, "Transcription failed");
             return new JsonArray();
         }
         

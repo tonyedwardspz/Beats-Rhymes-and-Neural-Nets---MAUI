@@ -21,10 +21,17 @@ public record ModelInfoResponse(string ModelInfo, bool IsReady);
 public record ErrorResponse(string Error);
 
 /// <summary>
+/// Response model for transcription results
+/// </summary>
+public record TranscriptionResponse(string[] Results);
+
+/// <summary>
 /// Configuration for LLMAPI settings
 /// </summary>
 public class ApiConfiguration
 {
-    public string BaseUrl { get; set; } = "http://localhost:5000";
+    public string BaseUrl { get; set; } = "http://localhost:5087";
     public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(5);
+    
+    public string WhisperBaseURL { get; set; } = "http://localhost:5087";
 }

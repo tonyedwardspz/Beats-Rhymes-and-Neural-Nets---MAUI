@@ -51,11 +51,17 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+		<PackageReference Include="Plugin.Maui.Audio" Version="4.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Models\" />
 	  <Folder Include="Services\" />
+	</ItemGroup>
+
+	<!-- Mac Catalyst Entitlements -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-maccatalyst'">
+		<Entitlements Include="Platforms\MacCatalyst\Entitlements.plist" />
 	</ItemGroup>
 
 </Project>
