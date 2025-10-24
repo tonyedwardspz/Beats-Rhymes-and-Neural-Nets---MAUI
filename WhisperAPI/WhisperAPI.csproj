@@ -12,21 +12,21 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
         <PackageReference Include="Whisper.net" Version="1.8.1" />
         <PackageReference Include="Whisper.net.AllRuntimes" Version="1.8.1" />
         
         <PackageReference Include="Xabe.FFmpeg" Version="5.2.6" />
 
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.10.0" />
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.2" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.13.1" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.13.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.13.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.13.0" />
 
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     </ItemGroup>
 
     <ItemGroup>
