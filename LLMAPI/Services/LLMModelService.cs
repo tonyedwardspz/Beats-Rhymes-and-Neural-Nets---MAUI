@@ -1,8 +1,5 @@
 namespace LLMAPI.Services;
 
-using LLama;
-using LLama.Common;
-using Microsoft.Extensions.Options;
 
 public class LLMModelService : ILLMModelService, IDisposable
 {

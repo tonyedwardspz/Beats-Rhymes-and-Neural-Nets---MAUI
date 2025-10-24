@@ -1,0 +1,20 @@
+// Global using statements for WhisperAPI project
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;
+global using System.Diagnostics;
+global using System.Text.Json.Nodes;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Configuration;
+global using Whisper.net;
+global using Whisper.net.Ggml;
+global using Whisper.net.Logger;
+global using WhisperAPI.Endpoints;
+global using WhisperAPI.Interfaces;
+global using WhisperAPI.Models;
+global using WhisperAPI.Services;
+global using Xabe.FFmpeg;

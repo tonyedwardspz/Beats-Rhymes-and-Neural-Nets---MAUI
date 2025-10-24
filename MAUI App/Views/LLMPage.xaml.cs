@@ -1,4 +1,3 @@
-using MAUI_App.ViewModels;
 
 namespace MAUI_App.Views;
 

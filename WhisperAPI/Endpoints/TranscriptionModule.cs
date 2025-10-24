@@ -1,8 +1,4 @@
 
-using System.Text.Json.Nodes;
-using Microsoft.AspNetCore.Mvc;
-using WhisperAPI.Services;
-using WhisperAPI.Models;
 
 namespace WhisperAPI.Endpoints;
 

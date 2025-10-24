@@ -1,4 +1,3 @@
-using System.Globalization;
 
 namespace MAUI_App.Converters;
 

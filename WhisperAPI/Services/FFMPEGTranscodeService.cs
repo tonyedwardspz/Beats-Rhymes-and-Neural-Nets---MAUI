@@ -3,8 +3,6 @@
 // https://github.com/drasticactions/MauiWhisper
 // </copyright>
 
-using WhisperAPI.Interfaces;
-using Xabe.FFmpeg;
 
 namespace WhisperAPI.Services;
 

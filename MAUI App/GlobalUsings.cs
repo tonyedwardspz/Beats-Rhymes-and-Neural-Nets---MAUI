@@ -1,0 +1,26 @@
+// Global using statements for MAUI App project
+global using System;
+global using System.Collections.Generic;
+global using System.ComponentModel;
+global using System.Globalization;
+global using System.IO;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Net.Http.Json;
+global using System.Runtime.CompilerServices;
+global using System.Text;
+global using System.Text.Json;
+global using System.Threading.Tasks;
+global using System.Windows.Input;
+global using System.Diagnostics;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using Microsoft.Maui.Controls;
+global using Microsoft.Maui.Controls.Xaml;
+global using Plugin.Maui.Audio;
+global using static Microsoft.Maui.ApplicationModel.Permissions;
+global using MAUI_App.Models;
+global using MAUI_App.Services;
+global using MAUI_App.ViewModels;
+global using MAUI_App.Views;
+global using MAUI_App.Converters;

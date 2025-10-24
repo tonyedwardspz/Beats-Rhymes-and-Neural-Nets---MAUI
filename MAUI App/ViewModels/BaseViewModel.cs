@@ -1,12 +1,9 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using static Microsoft.Maui.ApplicationModel.Permissions;
 
 namespace MAUI_App.ViewModels;
 
 public class BaseViewModel : INotifyPropertyChanged
 {
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
     {

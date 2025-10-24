@@ -1,10 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using MAUI_App.Models;
-using MAUI_App.Services;
-using MAUI_App.ViewModels;
-using MAUI_App.Views;
-using Plugin.Maui.Audio;
-
+﻿
 namespace MAUI_App
 {
     public static class MauiProgram

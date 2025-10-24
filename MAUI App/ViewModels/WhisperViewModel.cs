@@ -1,8 +1,3 @@
-using System.Diagnostics;
-using Plugin.Maui.Audio;
-using static Microsoft.Maui.ApplicationModel.Permissions;
-using MAUI_App.Services;
-using Microsoft.Maui.Controls;
 
 namespace MAUI_App.ViewModels;
 
@@ -11,9 +6,9 @@ public class WhisperPageViewModel : BaseViewModel
 	readonly IAudioManager audioManager;
 	readonly IDispatcher dispatcher;
 	readonly IWhisperApiService whisperApiService;
-	IAudioRecorder audioRecorder;
-	IAudioSource audioSource = null;
-	AsyncAudioPlayer audioPlayer;
+	IAudioRecorder? audioRecorder;
+	IAudioSource? audioSource = null;
+	AsyncAudioPlayer? audioPlayer;
 
 	public bool IsRecording
 	{
@@ -86,7 +81,7 @@ public class WhisperPageViewModel : BaseViewModel
 			{
 				Channels = ChannelType.Mono,
 				BitDepth = BitDepth.Pcm16bit,
-				Encoding = Encoding.Wav,
+				Encoding = Plugin.Maui.Audio.Encoding.Wav,
 				ThrowIfNotSupported = true,
 				SampleRate = 16000
 			};

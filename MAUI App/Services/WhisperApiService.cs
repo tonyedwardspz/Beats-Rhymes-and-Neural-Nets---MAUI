@@ -1,9 +1,3 @@
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using MAUI_App.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace MAUI_App.Services;
 

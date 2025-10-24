@@ -1,5 +1,3 @@
-using LLMAPI.Services;
-using LLMAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 

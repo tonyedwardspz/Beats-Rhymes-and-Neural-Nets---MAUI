@@ -1,8 +1,4 @@
 using Microsoft.AspNetCore.Antiforgery;
-using WhisperAPI.Endpoints;
-using WhisperAPI.Services;
-using WhisperAPI.Interfaces;
-using Xabe.FFmpeg;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +77,7 @@ else
 
 // Add services to the container
 builder.Services.AddSingleton<ITranscodeService, FfMpegTranscodeService>();
+builder.Services.AddSingleton<AudioFileHelper>();
 builder.Services.AddSingleton<IWhisperService, WhisperService>();
 
 var app = builder.Build();

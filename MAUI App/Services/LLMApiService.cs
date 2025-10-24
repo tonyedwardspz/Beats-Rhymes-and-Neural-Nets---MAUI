@@ -1,9 +1,3 @@
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using MAUI_App.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace MAUI_App.Services;
 
@@ -180,7 +174,7 @@ public class LLMApiService : ILLMApiService, IDisposable
             
             var request = new GenerateRequest(prompt);
             var jsonContent = JsonSerializer.Serialize(request, _jsonOptions);
-            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
             
             using var response = await _httpClient.PostAsync("/api/llm/stream", content, cancellationToken);
             

@@ -1,5 +1,4 @@
-﻿using MAUI_App.Views;
-
+﻿
 namespace MAUI_App
 {
     public partial class AppShell : Shell

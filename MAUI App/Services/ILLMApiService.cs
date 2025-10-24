@@ -1,4 +1,3 @@
-using MAUI_App.Models;
 
 namespace MAUI_App.Services;
 

@@ -1,9 +1,3 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using MAUI_App.Models;
-using MAUI_App.Services;
-using Microsoft.Extensions.Logging;
 
 namespace MAUI_App.ViewModels;
 
