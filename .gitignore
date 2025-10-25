@@ -367,3 +367,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+WhisperAPI/WhisperModels/ggml-large-v3-turbo.bin
+WhisperAPI/WhisperModels/ggml-large-v3.bin
+WhisperAPI/WhisperModels/ggml-medium.bin
+WhisperAPI/WhisperModels/ggml-small.bin

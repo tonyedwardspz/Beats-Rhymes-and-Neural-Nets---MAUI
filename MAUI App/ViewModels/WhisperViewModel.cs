@@ -5,6 +5,7 @@ using Plugin.Maui.Audio;
 using System.ComponentModel;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.Graphics;
+using MAUI_App.Models;
 
 namespace MAUI_App.ViewModels;
 
@@ -69,6 +70,42 @@ public class WhisperPageViewModel : BaseViewModel
 
 	public bool IsChunkedRecording => isChunkedRecording;
 
+	// Model selection properties
+	private List<WhisperModel> availableModels = new();
+	public List<WhisperModel> AvailableModels
+	{
+		get => availableModels;
+		set
+		{
+			availableModels = value;
+			NotifyPropertyChanged();
+		}
+	}
+
+	private WhisperModel selectedModel = new();
+	public WhisperModel SelectedModel
+	{
+		get => selectedModel;
+		set
+		{
+			selectedModel = value;
+			NotifyPropertyChanged();
+			SwitchModelCommand.ChangeCanExecute();
+		}
+	}
+
+	private bool isLoadingModels = false;
+	public bool IsLoadingModels
+	{
+		get => isLoadingModels;
+		set
+		{
+			isLoadingModels = value;
+			NotifyPropertyChanged();
+			LoadModelsCommand.ChangeCanExecute();
+		}
+	}
+
 	// Toggle button properties
 	public string RecordingButtonText => IsRecording ? "Stop Recording" : "Start Recording";
 	public Color RecordingButtonColor => IsRecording ? Colors.Red : Colors.Green;
@@ -105,6 +142,8 @@ public class WhisperPageViewModel : BaseViewModel
 	public Command ToggleRecordingCommand { get; }
 	public Command TogglePlaybackCommand { get; }
 	public Command ToggleChunkedCommand { get; }
+	public Command LoadModelsCommand { get; }
+	public Command SwitchModelCommand { get; }
 
 	public WhisperPageViewModel(
 		IAudioManager audioManager,
@@ -123,11 +162,15 @@ public class WhisperPageViewModel : BaseViewModel
 		ToggleRecordingCommand = new Command(ToggleRecording);
 		TogglePlaybackCommand = new Command(TogglePlayback);
 		ToggleChunkedCommand = new Command(ToggleChunked);
-
+		LoadModelsCommand = new Command(LoadModels, () => !IsLoadingModels);
+		SwitchModelCommand = new Command(SwitchModel, () => SelectedModel != null && !string.IsNullOrEmpty(SelectedModel.Name) && !SelectedModel.IsCurrent);
 
 		this.audioManager = audioManager;
 		this.dispatcher = dispatcher;
 		this.whisperApiService = whisperApiService;
+		
+		// Load models on startup
+		LoadModels();
 	}
 
 	async void Start()
@@ -485,6 +528,86 @@ public class WhisperPageViewModel : BaseViewModel
 		else
 		{
 			StartChunkedTranscription();
+		}
+	}
+
+	async void LoadModels()
+	{
+		IsLoadingModels = true;
+		LoadModelsCommand.ChangeCanExecute();
+
+		try
+		{
+			var result = await whisperApiService.GetAvailableModelsAsync();
+			
+			if (result.IsSuccess && result.Data != null)
+			{
+				AvailableModels = result.Data;
+				
+				// Set the current model as selected if none is selected
+				if (SelectedModel == null || string.IsNullOrEmpty(SelectedModel.Name))
+				{
+					var currentModel = AvailableModels.FirstOrDefault(m => m.IsCurrent);
+					if (currentModel != null)
+					{
+						SelectedModel = currentModel;
+					}
+				}
+			}
+			else
+			{
+				await AppShell.Current.DisplayAlert("Error", 
+					$"Failed to load models: {result.ErrorMessage}", "OK");
+			}
+		}
+		catch (Exception ex)
+		{
+			await AppShell.Current.DisplayAlert("Error", 
+				$"Unexpected error loading models: {ex.Message}", "OK");
+		}
+		finally
+		{
+			IsLoadingModels = false;
+			LoadModelsCommand.ChangeCanExecute();
+		}
+	}
+
+	async void SwitchModel()
+	{
+		if (SelectedModel == null || string.IsNullOrEmpty(SelectedModel.Name))
+		{
+			await AppShell.Current.DisplayAlert("Error", "Please select a model first.", "OK");
+			return;
+		}
+
+		if (SelectedModel.IsCurrent)
+		{
+			await AppShell.Current.DisplayAlert("Info", "This model is already selected.", "OK");
+			return;
+		}
+
+		try
+		{
+			var result = await whisperApiService.SwitchModelAsync(SelectedModel.Name);
+			
+			if (result.IsSuccess)
+			{
+				await AppShell.Current.DisplayAlert("Success", 
+					$"Successfully switched to model: {SelectedModel.Name}", "OK");
+				
+				// Refresh the models list to update the current model indicator
+				LoadModels();
+			}
+			else
+			{
+				await AppShell.Current.DisplayAlert("Error", 
+					$"Failed to switch model: {result.ErrorMessage}", "OK");
+			}
+		}
+		catch (Exception ex)
+		{
+			await AppShell.Current.DisplayAlert("Error", 
+				$"Unexpected error switching model: {ex.Message}", "OK");
 		}
 	}
 }

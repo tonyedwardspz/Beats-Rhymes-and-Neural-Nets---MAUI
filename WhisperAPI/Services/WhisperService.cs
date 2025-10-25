@@ -1,24 +1,42 @@
 
 namespace WhisperAPI.Services;
 
+public class WhisperModel
+{
+    public string Name { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+    public string FilePath { get; set; } = string.Empty;
+    public long SizeBytes { get; set; }
+    public string SizeFormatted { get; set; } = string.Empty;
+    public string ModelType { get; set; } = string.Empty;
+    public string QuantizationLevel { get; set; } = string.Empty;
+    public bool IsCurrent { get; set; }
+}
+
 public interface IWhisperService
 {
     Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null);
     Task<JsonArray> TranscribeFileAsync(IWhisperService whisperService, TranscribeWavRequest request);
     Task<string> GetModelDetailsAsync();
+    Task<List<WhisperModel>> GetAvailableModelsAsync();
+    Task<bool> SwitchModelAsync(string modelName);
 }
 
 public class WhisperService : IWhisperService
 {
-    private readonly string _modelFileName;
+    private string _modelFileName;
     private readonly ILogger<WhisperService> _logger;
-    private readonly WhisperFactory _whisperFactory;
+    private WhisperFactory _whisperFactory;
     private readonly AudioFileHelper _audioFileHelper;
     private readonly IMetricsService _metricsService;
+    private readonly IConfiguration _configuration;
+    private readonly string _modelsDirectory;
 
     public WhisperService(IConfiguration configuration, ILogger<WhisperService> logger, AudioFileHelper audioFileHelper, IMetricsService metricsService)
     {
+        _configuration = configuration;
         _modelFileName = configuration["Whisper:ModelPath"] ?? "./WhisperModels/ggml-base.bin";
+        _modelsDirectory = Path.GetDirectoryName(_modelFileName) ?? "./WhisperModels";
         _logger = logger;
         _audioFileHelper = audioFileHelper;
         _metricsService = metricsService;
@@ -236,5 +254,85 @@ public class WhisperService : IWhisperService
             len = len / 1024;
         }
         return $"{len:0.##} {sizes[order]}";
+    }
+
+    public async Task<List<WhisperModel>> GetAvailableModelsAsync()
+    {
+        var models = new List<WhisperModel>();
+        
+        try
+        {
+            if (!Directory.Exists(_modelsDirectory))
+            {
+                _logger.LogWarning("Models directory not found: {ModelsDirectory}", _modelsDirectory);
+                return models;
+            }
+
+            var modelFiles = Directory.GetFiles(_modelsDirectory, "*.bin")
+                .Where(f => Path.GetFileName(f).StartsWith("ggml-"))
+                .OrderBy(f => f)
+                .ToList();
+
+            foreach (var modelFile in modelFiles)
+            {
+                var fileInfo = new FileInfo(modelFile);
+                var fileName = Path.GetFileName(modelFile);
+                var modelName = Path.GetFileNameWithoutExtension(modelFile);
+                
+                var model = new WhisperModel
+                {
+                    Name = modelName,
+                    FileName = fileName,
+                    FilePath = modelFile,
+                    SizeBytes = fileInfo.Length,
+                    SizeFormatted = FormatFileSize(fileInfo.Length),
+                    ModelType = GetModelType(modelFile),
+                    QuantizationLevel = GetQuantizationLevel(modelFile),
+                    IsCurrent = Path.GetFileName(modelFile) == Path.GetFileName(_modelFileName)
+                };
+                
+                models.Add(model);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting available models");
+        }
+
+        return await Task.FromResult(models);
+    }
+
+    public Task<bool> SwitchModelAsync(string modelName)
+    {
+        try
+        {
+            var modelPath = Path.Combine(_modelsDirectory, $"{modelName}.bin");
+            
+            if (!File.Exists(modelPath))
+            {
+                _logger.LogError("Model file not found: {ModelPath}", modelPath);
+                return Task.FromResult(false);
+            }
+
+            _logger.LogInformation("Switching to model: {ModelPath}", modelPath);
+            
+            // Dispose the current factory
+            _whisperFactory?.Dispose();
+            
+            // Create new factory with the new model
+            _whisperFactory = WhisperFactory.FromPath(modelPath);
+            _modelFileName = modelPath;
+            
+            // Update configuration (this will persist the change)
+            _configuration["Whisper:ModelPath"] = modelPath;
+            
+            _logger.LogInformation("Successfully switched to model: {ModelPath}", modelPath);
+            return Task.FromResult(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to switch to model: {ModelName}", modelName);
+            return Task.FromResult(false);
+        }
     }
 }

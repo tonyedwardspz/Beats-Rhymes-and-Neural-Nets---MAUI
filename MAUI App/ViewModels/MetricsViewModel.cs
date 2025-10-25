@@ -114,14 +114,14 @@ public class MetricsViewModel : INotifyPropertyChanged
             else
             {
                 _logger.LogError("Failed to load metrics: {Error}", result.ErrorMessage);
-                await Application.Current.MainPage.DisplayAlert("Error", 
+                await Application.Current.Windows[0].Page.DisplayAlert("Error", 
                     $"Failed to load metrics: {result.ErrorMessage}", "OK");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception occurred while loading metrics");
-            await Application.Current.MainPage.DisplayAlert("Error", 
+            await Application.Current.Windows[0].Page.DisplayAlert("Error", 
                 $"Exception occurred: {ex.Message}", "OK");
         }
         finally

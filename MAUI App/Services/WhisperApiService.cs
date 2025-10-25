@@ -232,6 +232,83 @@ public class WhisperApiService : IWhisperApiService, IDisposable
         }
     }
 
+    /// <inheritdoc />
+    public async Task<ApiResult<List<WhisperModel>>> GetAvailableModelsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogInformation("Requesting available models from WhisperAPI");
+            
+            var response = await _httpClient.GetAsync("/api/whisper/models", cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var models = await response.Content.ReadFromJsonAsync<List<WhisperModel>>(_jsonOptions, cancellationToken);
+                
+                if (models != null)
+                {
+                    _logger.LogInformation("Successfully retrieved {Count} available models", models.Count);
+                    return ApiResult<List<WhisperModel>>.Success(models);
+                }
+                
+                return ApiResult<List<WhisperModel>>.Failure("Failed to deserialize models response");
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Failed to get available models. Status: {StatusCode}, Content: {Content}", 
+                response.StatusCode, errorContent);
+            
+            return ApiResult<List<WhisperModel>>.Failure(
+                $"WhisperAPI request failed with status {response.StatusCode}", 
+                (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while getting available models");
+            return ApiResult<List<WhisperModel>>.Failure($"Unexpected error: {ex.Message}");
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<ApiResult<string>> SwitchModelAsync(string modelName, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(modelName))
+        {
+            return ApiResult<string>.Failure("Model name cannot be empty", 400);
+        }
+
+        try
+        {
+            _logger.LogInformation("Switching to model: {ModelName}", modelName);
+            
+            var request = new { ModelName = modelName };
+            var json = JsonSerializer.Serialize(request, _jsonOptions);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            
+            var response = await _httpClient.PostAsync("/api/whisper/models/switch", content, cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogInformation("Successfully switched to model: {ModelName}", modelName);
+                return ApiResult<string>.Success($"Successfully switched to model: {modelName}");
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Failed to switch model. Status: {StatusCode}, Content: {Content}", 
+                response.StatusCode, errorContent);
+            
+            return ApiResult<string>.Failure(
+                $"WhisperAPI model switch failed with status {response.StatusCode}", 
+                (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while switching model: {ModelName}", modelName);
+            return ApiResult<string>.Failure($"Unexpected error: {ex.Message}");
+        }
+    }
+
     public void Dispose()
     {
         _httpClient?.Dispose();

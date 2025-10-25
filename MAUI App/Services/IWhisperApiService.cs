@@ -43,4 +43,19 @@ public interface IWhisperApiService
         string? transcriptionType = null,
         string? sessionId = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the list of available Whisper models
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of available models</returns>
+    Task<ApiResult<List<WhisperModel>>> GetAvailableModelsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Switches to a different Whisper model
+    /// </summary>
+    /// <param name="modelName">The name of the model to switch to</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Success status</returns>
+    Task<ApiResult<string>> SwitchModelAsync(string modelName, CancellationToken cancellationToken = default);
 }
