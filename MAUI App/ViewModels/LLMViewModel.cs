@@ -1,4 +1,6 @@
 
+using Microsoft.Maui.ApplicationModel;
+
 namespace MAUI_App.ViewModels;
 
 /// <summary>

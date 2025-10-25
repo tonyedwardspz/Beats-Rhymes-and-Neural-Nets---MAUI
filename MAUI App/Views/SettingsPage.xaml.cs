@@ -1,3 +1,5 @@
+using Microsoft.Maui.Storage;
+
 namespace MAUI_App.Views;
 
 public partial class SettingsPage : ContentPage

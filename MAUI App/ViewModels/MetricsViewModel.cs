@@ -81,12 +81,17 @@ public class MetricsViewModel : INotifyPropertyChanged
             if (result.IsSuccess && result.Data != null)
             {
                 Metrics.Clear();
-                foreach (var metric in result.Data)
+                
+                // Process and aggregate metrics by session ID
+                var aggregatedMetrics = AggregateMetricsBySession(result.Data);
+                
+                foreach (var metric in aggregatedMetrics)
                 {
                     Metrics.Add(metric);
                 }
                 
-                _logger.LogInformation("Loaded {Count} metrics", result.Data.Count);
+                _logger.LogInformation("Loaded {Count} raw metrics, aggregated to {AggregatedCount} metrics", 
+                    result.Data.Count, aggregatedMetrics.Count);
                 
                 // Apply current sort
                 SortByColumn(_sortColumn);
@@ -108,6 +113,73 @@ public class MetricsViewModel : INotifyPropertyChanged
         {
             IsLoading = false;
         }
+    }
+
+    private List<TranscriptionMetrics> AggregateMetricsBySession(List<TranscriptionMetrics> rawMetrics)
+    {
+        var aggregatedMetrics = new List<TranscriptionMetrics>();
+        
+        // Group metrics by session ID
+        var sessionGroups = rawMetrics
+            .Where(m => !string.IsNullOrEmpty(m.SessionId))
+            .GroupBy(m => m.SessionId)
+            .ToList();
+        
+        // Process each session group
+        foreach (var sessionGroup in sessionGroups)
+        {
+            var sessionMetrics = sessionGroup.ToList();
+            
+            if (sessionMetrics.Count == 1)
+            {
+                // Single metric - no aggregation needed
+                aggregatedMetrics.Add(sessionMetrics.First());
+            }
+            else
+            {
+                // Multiple metrics with same session ID - aggregate them
+                var aggregatedMetric = AggregateSessionMetrics(sessionMetrics);
+                aggregatedMetrics.Add(aggregatedMetric);
+                
+                _logger.LogInformation("Aggregated {Count} metrics for session {SessionId} into single entry", 
+                    sessionMetrics.Count, sessionGroup.Key);
+            }
+        }
+        
+        // Add any metrics without session IDs (shouldn't happen with new implementation, but for safety)
+        var metricsWithoutSession = rawMetrics.Where(m => string.IsNullOrEmpty(m.SessionId)).ToList();
+        aggregatedMetrics.AddRange(metricsWithoutSession);
+        
+        return aggregatedMetrics;
+    }
+    
+    private TranscriptionMetrics AggregateSessionMetrics(List<TranscriptionMetrics> sessionMetrics)
+    {
+        if (sessionMetrics.Count == 0)
+            throw new ArgumentException("Cannot aggregate empty session metrics");
+        
+        // Use the first metric as the base
+        var baseMetric = sessionMetrics.First();
+        
+        // Aggregate the values
+        var aggregatedMetric = new TranscriptionMetrics
+        {
+            Timestamp = sessionMetrics.Min(m => m.Timestamp), // Use earliest timestamp
+            ModelName = baseMetric.ModelName,
+            TranscriptionType = baseMetric.TranscriptionType,
+            SessionId = baseMetric.SessionId,
+            FileSizeBytes = sessionMetrics.Sum(m => m.FileSizeBytes), // Sum file sizes
+            AudioDurationSeconds = sessionMetrics.Sum(m => m.AudioDurationSeconds ?? 0), // Sum durations
+            TotalTimeMs = sessionMetrics.Sum(m => m.TotalTimeMs), // Sum total times
+            PreprocessingTimeMs = sessionMetrics.Sum(m => m.PreprocessingTimeMs), // Sum preprocessing times
+            TranscriptionTimeMs = sessionMetrics.Sum(m => m.TranscriptionTimeMs), // Sum transcription times
+            Success = sessionMetrics.All(m => m.Success), // Success only if all succeeded
+            ErrorMessage = sessionMetrics.Any(m => !string.IsNullOrEmpty(m.ErrorMessage)) 
+                ? string.Join("; ", sessionMetrics.Where(m => !string.IsNullOrEmpty(m.ErrorMessage)).Select(m => m.ErrorMessage))
+                : null
+        };
+        
+        return aggregatedMetric;
     }
 
     private void SortByColumn(string columnName)
@@ -147,7 +219,7 @@ public class MetricsViewModel : INotifyPropertyChanged
         {
             "Timestamp" => Metrics.OrderBy(m => m.Timestamp),
             "ModelName" => Metrics.OrderBy(m => m.ModelName),
-            "FileName" => Metrics.OrderBy(m => m.FileName),
+            "TranscriptionType" => Metrics.OrderBy(m => m.TranscriptionType),
             "FileSizeBytes" => Metrics.OrderBy(m => m.FileSizeBytes),
             "AudioDurationSeconds" => Metrics.OrderBy(m => m.AudioDurationSeconds ?? 0),
             "TotalTimeMs" => Metrics.OrderBy(m => m.TotalTimeMs),
@@ -164,7 +236,7 @@ public class MetricsViewModel : INotifyPropertyChanged
         {
             "Timestamp" => Metrics.OrderByDescending(m => m.Timestamp),
             "ModelName" => Metrics.OrderByDescending(m => m.ModelName),
-            "FileName" => Metrics.OrderByDescending(m => m.FileName),
+            "TranscriptionType" => Metrics.OrderByDescending(m => m.TranscriptionType),
             "FileSizeBytes" => Metrics.OrderByDescending(m => m.FileSizeBytes),
             "AudioDurationSeconds" => Metrics.OrderByDescending(m => m.AudioDurationSeconds ?? 0),
             "TotalTimeMs" => Metrics.OrderByDescending(m => m.TotalTimeMs),

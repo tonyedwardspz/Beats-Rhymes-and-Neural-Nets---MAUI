@@ -1,4 +1,6 @@
 
+using System.Threading;
+
 namespace MAUI_App.Services;
 
 /// <summary>
@@ -17,10 +19,14 @@ public interface IWhisperApiService
     /// </summary>
     /// <param name="audioStream">The audio stream to transcribe</param>
     /// <param name="fileName">The name of the audio file</param>
+    /// <param name="transcriptionType">The type of transcription (e.g., "Streaming", "File Upload")</param>
+    /// <param name="sessionId">Session ID for grouping related transcriptions</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Transcription results</returns>
     Task<ApiResult<TranscriptionResponse>> TranscribeWavAsync(
         Stream audioStream, 
         string fileName, 
+        string? transcriptionType = null,
+        string? sessionId = null,
         CancellationToken cancellationToken = default);
 }

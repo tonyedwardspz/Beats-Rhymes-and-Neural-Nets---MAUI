@@ -1,4 +1,6 @@
 
+using System.Threading;
+
 namespace MAUI_App.Services;
 
 /// <summary>
@@ -72,6 +74,8 @@ public class WhisperApiService : IWhisperApiService, IDisposable
     public async Task<ApiResult<TranscriptionResponse>> TranscribeWavAsync(
         Stream audioStream, 
         string fileName, 
+        string? transcriptionType = null,
+        string? sessionId = null,
         CancellationToken cancellationToken = default)
     {
         if (audioStream == null || audioStream.Length == 0)
@@ -98,6 +102,17 @@ public class WhisperApiService : IWhisperApiService, IDisposable
             
             // Add the file to the form data
             formData.Add(audioContent, "File", fileName);
+            
+            // Add transcription type and session ID if provided
+            if (!string.IsNullOrEmpty(transcriptionType))
+            {
+                formData.Add(new StringContent(transcriptionType), "TranscriptionType");
+            }
+            
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                formData.Add(new StringContent(sessionId), "SessionId");
+            }
             
             var response = await _httpClient.PostAsync("/api/whisper/transcribe-wav", formData, cancellationToken);
             

@@ -1,4 +1,7 @@
 ﻿
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.Controls.Hosting;
+
 namespace MAUI_App
 {
     public static class MauiProgram

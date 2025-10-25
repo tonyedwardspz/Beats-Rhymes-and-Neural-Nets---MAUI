@@ -71,11 +71,11 @@
                                 FontAttributes="Bold" />
                         
                         <Button Grid.Column="2" 
-                                Text="File" 
+                                Text="Type" 
                                 BackgroundColor="Transparent" 
                                 BorderColor="Transparent"
                                 Command="{Binding SortCommand}" 
-                                CommandParameter="FileName"
+                                CommandParameter="TranscriptionType"
                                 FontSize="12" 
                                 FontAttributes="Bold" />
                         
@@ -163,7 +163,7 @@
                                    TextColor="DarkSlateGrey"/>
                             
                             <Label Grid.Column="2" 
-                                   Text="{Binding FileName}" 
+                                   Text="{Binding TranscriptionType}" 
                                    FontSize="20" 
                                    VerticalOptions="Center" 
                                    LineBreakMode="TailTruncation"

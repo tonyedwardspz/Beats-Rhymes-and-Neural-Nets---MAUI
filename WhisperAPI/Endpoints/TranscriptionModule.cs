@@ -37,7 +37,7 @@ public static class TranscriptionModule
     {
         try
         {
-            var results = await whisperService.TranscribeFilePathAsync(request.FilePath);
+            var results = await whisperService.TranscribeFilePathAsync(request.FilePath, request.TranscriptionType, request.SessionId);
             
             // Convert JsonArray to string array
             var stringResults = results.Select(node => node?.ToString() ?? string.Empty).ToArray();
@@ -78,5 +78,11 @@ public static class TranscriptionModule
     }
 }
 
-public record TranscribeFilePathRequest(string FilePath);
-public record TranscribeWavRequest(IFormFile File);
+public record TranscribeFilePathRequest(string FilePath, string? TranscriptionType = null, string? SessionId = null);
+
+public class TranscribeWavRequest
+{
+    public IFormFile File { get; set; } = null!;
+    public string? TranscriptionType { get; set; }
+    public string? SessionId { get; set; }
+}

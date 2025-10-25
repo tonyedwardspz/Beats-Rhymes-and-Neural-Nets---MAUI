@@ -3,7 +3,7 @@ namespace WhisperAPI.Services;
 
 public interface IWhisperService
 {
-    Task<JsonArray> TranscribeFilePathAsync(string filePath);
+    Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null);
     Task<JsonArray> TranscribeFileAsync(IWhisperService whisperService, TranscribeWavRequest request);
     Task<string> GetModelDetailsAsync();
 }
@@ -34,7 +34,7 @@ public class WhisperService : IWhisperService
         _logger.LogInformation("WhisperFactory initialized successfully");
     }
 
-    public async Task<JsonArray> TranscribeFilePathAsync(string filePath)
+    public async Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null)
     {
         var startTime = DateTime.UtcNow;
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -42,7 +42,8 @@ public class WhisperService : IWhisperService
         {
             Timestamp = startTime,
             ModelName = Path.GetFileNameWithoutExtension(_modelFileName),
-            FileName = Path.GetFileName(filePath),
+            TranscriptionType = transcriptionType ?? "File Upload",
+            SessionId = sessionId ?? Guid.NewGuid().ToString(),
             FileSizeBytes = new FileInfo(filePath).Length
         };
 
@@ -151,7 +152,7 @@ public class WhisperService : IWhisperService
                 }
 
                 // Transcribe the file
-                var results = await whisperService.TranscribeFilePathAsync(tempFilePath);
+                var results = await whisperService.TranscribeFilePathAsync(tempFilePath, request.TranscriptionType, request.SessionId);
                 return results;
             }
             finally

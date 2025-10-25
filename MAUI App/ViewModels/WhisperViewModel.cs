@@ -1,6 +1,5 @@
 
-using System.Threading;
-using Plugin.Maui.Audio;
+
 
 namespace MAUI_App.ViewModels;
 
@@ -17,6 +16,7 @@ public class WhisperPageViewModel : BaseViewModel
 	private Timer? chunkedTimer;
 	private bool isChunkedRecording = false;
 	private int chunkCounter = 0;
+	private string? chunkedSessionId = null;
 
 	public bool IsRecording
 	{
@@ -151,7 +151,7 @@ public class WhisperPageViewModel : BaseViewModel
 			}
 			
 			// Send to Whisper API for transcription
-			var result = await whisperApiService.TranscribeWavAsync(audioStream, "recording.wav");
+			var result = await whisperApiService.TranscribeWavAsync(audioStream, "recording.wav", "File Upload");
 			
 			if (result.IsSuccess && result.Data != null)
 			{
@@ -201,6 +201,7 @@ public class WhisperPageViewModel : BaseViewModel
 			TranscriptionResult = "Starting chunked transcription...\n";
 			chunkCounter = 0;
 			isChunkedRecording = true;
+			chunkedSessionId = Guid.NewGuid().ToString(); // Generate session ID for this chunked session
 			
 			// Start the timer for 2-second intervals
 			chunkedTimer = new Timer(ProcessChunk, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
@@ -216,6 +217,7 @@ public class WhisperPageViewModel : BaseViewModel
 		isChunkedRecording = false;
 		chunkedTimer?.Dispose();
 		chunkedTimer = null;
+		// Don't reset session ID here - let the final chunk use it
 		
 		// Update command states
 		StartChunkedCommand.ChangeCanExecute();
@@ -255,7 +257,7 @@ public class WhisperPageViewModel : BaseViewModel
 					audioStream.Position = 0;
 				}
 
-				var result = await whisperApiService.TranscribeWavAsync(audioStream, $"chunk_{chunkCounter}.wav");
+				var result = await whisperApiService.TranscribeWavAsync(audioStream, $"chunk_{chunkCounter}.wav", "Streaming", chunkedSessionId);
 				
 				await dispatcher.DispatchAsync(() =>
 				{
@@ -283,6 +285,12 @@ public class WhisperPageViewModel : BaseViewModel
 		finally
 		{
 			chunkCounter++;
+			
+			// Reset session ID after the final chunk has been processed
+			if (!isChunkedRecording)
+			{
+				chunkedSessionId = null;
+			}
 		}
 	}
 }

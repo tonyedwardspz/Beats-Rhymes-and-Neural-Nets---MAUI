@@ -1,4 +1,7 @@
 
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices;
+
 namespace MAUI_App.ViewModels;
 
 public class BaseViewModel : INotifyPropertyChanged

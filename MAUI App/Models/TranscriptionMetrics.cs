@@ -7,7 +7,8 @@ public class TranscriptionMetrics
 {
     public DateTime Timestamp { get; set; }
     public string ModelName { get; set; } = string.Empty;
-    public string FileName { get; set; } = string.Empty;
+    public string TranscriptionType { get; set; } = string.Empty;
+    public string SessionId { get; set; } = string.Empty;
     public long FileSizeBytes { get; set; }
     public double? AudioDurationSeconds { get; set; }
     public long TotalTimeMs { get; set; }

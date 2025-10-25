@@ -1,3 +1,6 @@
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices;
+
 namespace MAUI_App.Views;
 
 public partial class AboutPage : ContentPage
