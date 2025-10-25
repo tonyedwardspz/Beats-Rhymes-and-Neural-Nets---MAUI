@@ -36,6 +36,26 @@ namespace MAUI_App
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    
+                    // LibreFranklin font family
+                    fonts.AddFont("LibreFranklin-Thin.ttf", "LibreFranklinThin");
+                    fonts.AddFont("LibreFranklin-ThinItalic.ttf", "LibreFranklinThinItalic");
+                    fonts.AddFont("LibreFranklin-ExtraLight.ttf", "LibreFranklinExtraLight");
+                    fonts.AddFont("LibreFranklin-ExtraLightItalic.ttf", "LibreFranklinExtraLightItalic");
+                    fonts.AddFont("LibreFranklin-Light.ttf", "LibreFranklinLight");
+                    fonts.AddFont("LibreFranklin-LightItalic.ttf", "LibreFranklinLightItalic");
+                    fonts.AddFont("LibreFranklin-Regular.ttf", "LibreFranklinRegular");
+                    fonts.AddFont("LibreFranklin-Italic.ttf", "LibreFranklinItalic");
+                    fonts.AddFont("LibreFranklin-Medium.ttf", "LibreFranklinMedium");
+                    fonts.AddFont("LibreFranklin-MediumItalic.ttf", "LibreFranklinMediumItalic");
+                    fonts.AddFont("LibreFranklin-SemiBold.ttf", "LibreFranklinSemiBold");
+                    fonts.AddFont("LibreFranklin-SemiBoldItalic.ttf", "LibreFranklinSemiBoldItalic");
+                    fonts.AddFont("LibreFranklin-Bold.ttf", "LibreFranklinBold");
+                    fonts.AddFont("LibreFranklin-BoldItalic.ttf", "LibreFranklinBoldItalic");
+                    fonts.AddFont("LibreFranklin-ExtraBold.ttf", "LibreFranklinExtraBold");
+                    fonts.AddFont("LibreFranklin-ExtraBoldItalic.ttf", "LibreFranklinExtraBoldItalic");
+                    fonts.AddFont("LibreFranklin-Black.ttf", "LibreFranklinBlack");
+                    fonts.AddFont("LibreFranklin-BlackItalic.ttf", "LibreFranklinBlackItalic");
                 });
 
             // Configure API settings

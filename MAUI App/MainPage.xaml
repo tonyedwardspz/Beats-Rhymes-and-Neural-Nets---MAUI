@@ -18,6 +18,8 @@
             <Label
                 Text="Beats, Rhymes, and Neural Nets"
                 Style="{StaticResource Headline}"
+                FontFamily="LibreFranklinExtraBold"
+                TextTransform="Uppercase"
                 SemanticProperties.HeadingLevel="Level1" 
                 HorizontalOptions="Center" />
 
