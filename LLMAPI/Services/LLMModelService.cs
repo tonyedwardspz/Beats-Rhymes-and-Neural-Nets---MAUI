@@ -124,7 +124,20 @@ public class LLMModelService : ILLMModelService, IDisposable
             return "Model not loaded";
         }
 
-        return $"Model: {Path.GetFileName(_config.ModelPath)}, Context Size: {_parameters?.ContextSize ?? 0}";
+        var modelInfo = new
+        {
+            ModelName = Path.GetFileName(_config.ModelPath),
+            ModelPath = _config.ModelPath,
+            ModelSize = File.Exists(_config.ModelPath) ? new FileInfo(_config.ModelPath).Length : 0,
+            ContextSize = _parameters?.ContextSize ?? 0,
+            GpuLayerCount = _config.GpuLayerCount,
+            BatchSize = _config.BatchSize,
+            Threads = _parameters?.Threads ?? _config.Threads ?? Environment.ProcessorCount / 2,
+            ModelExists = File.Exists(_config.ModelPath),
+            IsInitialized = _isInitialized
+        };
+
+        return System.Text.Json.JsonSerializer.Serialize(modelInfo, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
     }
 
     public void Dispose()

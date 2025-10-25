@@ -172,6 +172,69 @@ public class WhisperService : IWhisperService
 
     public async Task<string> GetModelDetailsAsync()
     {
-        return await Task.FromResult("Whisper GGML base");
+        var modelInfo = new
+        {
+            ModelName = Path.GetFileNameWithoutExtension(_modelFileName),
+            ModelPath = _modelFileName,
+            ModelSize = File.Exists(_modelFileName) ? new FileInfo(_modelFileName).Length : 0,
+            ModelSizeFormatted = File.Exists(_modelFileName) ? FormatFileSize(new FileInfo(_modelFileName).Length) : "Unknown",
+            ModelExists = File.Exists(_modelFileName),
+            FactoryInitialized = _whisperFactory != null,
+            QuantizationLevel = GetQuantizationLevel(_modelFileName),
+            ModelType = GetModelType(_modelFileName)
+        };
+        
+        return await Task.FromResult(System.Text.Json.JsonSerializer.Serialize(modelInfo, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    private string GetQuantizationLevel(string modelPath)
+    {
+        if (!File.Exists(modelPath))
+            return "Unknown";
+
+        var fileName = Path.GetFileName(modelPath).ToLower();
+        
+        // Check for quantization patterns in filename
+        if (fileName.Contains("q8_0")) return "Q8_0 (8-bit)";
+        if (fileName.Contains("q6_k")) return "Q6_K (6-bit)";
+        if (fileName.Contains("q5_k")) return "Q5_K (5-bit)";
+        if (fileName.Contains("q4_k")) return "Q4_K (4-bit)";
+        if (fileName.Contains("q3_k")) return "Q3_K (3-bit)";
+        if (fileName.Contains("q2_k")) return "Q2_K (2-bit)";
+        if (fileName.Contains("q1_k")) return "Q1_K (1-bit)";
+        if (fileName.Contains("f16")) return "F16 (16-bit float)";
+        if (fileName.Contains("f32")) return "F32 (32-bit float)";
+        
+        // Default for base model
+        return "Base (No quantization)";
+    }
+
+    private string GetModelType(string modelPath)
+    {
+        if (!File.Exists(modelPath))
+            return "Unknown";
+
+        var fileName = Path.GetFileName(modelPath).ToLower();
+        
+        if (fileName.Contains("tiny")) return "Tiny";
+        if (fileName.Contains("base")) return "Base";
+        if (fileName.Contains("small")) return "Small";
+        if (fileName.Contains("medium")) return "Medium";
+        if (fileName.Contains("large")) return "Large";
+        
+        return "Unknown";
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
     }
 }

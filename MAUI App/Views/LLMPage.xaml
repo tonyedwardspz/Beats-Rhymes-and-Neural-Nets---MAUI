@@ -11,60 +11,120 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="15" Padding="20">
-            
-            <!-- Model Status Section -->
-            <Frame BackgroundColor="LightBlue" Padding="10">
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="Model Status" FontSize="16" FontAttributes="Bold" />
-                    <Label Text="{Binding ModelInfo}" />
-                    <Label Text="{Binding StatusMessage}" />
-                    <Button Text="Refresh Model Info" Command="{Binding CheckModelInfoCommand}" />
-                </VerticalStackLayout>
-            </Frame>
+    <Grid Margin="20" ColumnSpacing="20" RowSpacing="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left Column: Controls -->
+        <Grid Grid.Column="0" VerticalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
             <!-- Input Section -->
-            <Frame BackgroundColor="LightGray" Padding="10">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Enter your prompt:" FontSize="16" FontAttributes="Bold" />
+            <Frame Grid.Row="0" 
+                   BackgroundColor="#2D2D30" 
+                   Padding="15" 
+                   CornerRadius="8"
+                   VerticalOptions="FillAndExpand">
+                <VerticalStackLayout Spacing="10" VerticalOptions="Fill">
+                    <Label Text="Enter your prompt:" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" 
+                           />
+                    
                     <Editor Text="{Binding Prompt}" 
                             Placeholder="Type your prompt here..."
-                            HeightRequest="100"
+                            PlaceholderColor="Gray"
+                            TextColor="White"
+                            BackgroundColor="#1E1E1E"
+                            VerticalOptions="Fill"
+                            HeightRequest="325"
                             IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                     
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button Grid.Column="0"
                                 Text="Generate Response" 
                                 Command="{Binding GenerateCommand}"
+                                BackgroundColor="Green"
+                                TextColor="White"
+                                CornerRadius="6"
                                 IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                         
                         <Button Grid.Column="1"
                                 Text="Stream Response" 
                                 Command="{Binding GenerateStreamingCommand}"
+                                BackgroundColor="Blue"
+                                TextColor="White"
+                                CornerRadius="6"
                                 IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
-
-            <!-- Response Section -->
-            <Frame BackgroundColor="LightGreen" Padding="10">
+            
+            <!-- Model Status Section -->
+            <Frame Grid.Row="1" 
+                   BackgroundColor="#2D2D30" 
+                   Padding="15" 
+                   CornerRadius="8"
+                   Margin="0,0,0,15">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Response:" FontSize="16" FontAttributes="Bold" />
+                    <Label Text="🤖 LLM Model Information" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"
+                           TextColor="White" />
                     
-                    <ActivityIndicator IsVisible="{Binding IsGenerating}" 
-                                     IsRunning="{Binding IsGenerating}"
-                                     Color="Blue" />
-                    
-                    <ScrollView HeightRequest="300">
-                        <Label Text="{Binding Response}" 
-                               IsVisible="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}"
-                               LineBreakMode="WordWrap" />
+                    <ScrollView HeightRequest="200">
+                        <Label Text="{Binding ModelInfo}" 
+                               FontFamily="Courier"
+                               LineBreakMode="WordWrap"
+                               TextColor="LightGray" />
                     </ScrollView>
+                    
+                    <Label Text="{Binding StatusMessage}" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <Button Text="Refresh Model Info" 
+                            Command="{Binding CheckModelInfoCommand}"
+                            BackgroundColor="#0078D4" 
+                            TextColor="White"
+                            CornerRadius="6" />
                 </VerticalStackLayout>
             </Frame>
-
-        </VerticalStackLayout>
-    </ScrollView>
+        </Grid>
+        
+        <!-- Right Column: Results -->
+        <Grid Grid.Column="1" VerticalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Label Text="Transcription Results" 
+                   Grid.Row="0"
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="White"
+                   Margin="0,0,0,10" />
+            
+            <ScrollView Grid.Row="1" 
+                       VerticalOptions="FillAndExpand"
+                       BackgroundColor="LightGray">
+                <Label Text="{Binding Response}" 
+                       FontSize="16"
+                       TextColor="Black"
+                       BackgroundColor="LightGray"
+                       Padding="15"
+                       VerticalOptions="FillAndExpand"
+                       LineBreakMode="WordWrap" />
+            </ScrollView>
+        </Grid>
+    </Grid>
 
 </ContentPage>
