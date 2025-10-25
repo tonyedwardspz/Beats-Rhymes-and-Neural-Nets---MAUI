@@ -7,40 +7,37 @@
     xmlns:views="clr-namespace:MAUI_App.Views"
     Title="Beats, Rhymes, and Neural Nets"
     FlyoutBehavior="Flyout">
+    
+    
+    <Shell.ItemTemplate>
+        <DataTemplate x:DataType="FlyoutItem">
+            <Grid ColumnDefinitions="*">
+                <Label
+                       Text="{Binding Title}"
+                       FontSize="22"
+                       Padding="10,5,5,5"/>
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
 
-    <!-- 
-    The FlyoutBehavior can be set to 
-    - Flyout: Shows the hamburger icon which opens the flyout menu
-    - Locked: Always shows the flyout (good for tablets/desktop)
-    - Disabled: No flyout menu
-    -->
-
+    
     <!-- Flyout Header -->
     <Shell.FlyoutHeader>
-        <Grid BackgroundColor="#2196F3" HeightRequest="200">
+        <Grid BackgroundColor="#E0E0E0" HeightRequest="200">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             
-            <Image Source="dotnet_bot.png" 
+            <Image Source="beats_splash.png" 
                    Grid.Row="0"
                    Aspect="AspectFit"
-                   HeightRequest="100"
-                   WidthRequest="100"
+                   HeightRequest="120"
                    HorizontalOptions="Center"
                    VerticalOptions="Center" />
-            
-            <Label Grid.Row="1" 
-                   Text="Beats, Rhymes, and Neural Nets"
-                   FontSize="18"
-                   FontAttributes="Bold"
-                   TextColor="White"
-                   HorizontalOptions="Center"
-                   Margin="0,0,0,20" />
         </Grid>
     </Shell.FlyoutHeader>
 
+    
     <!-- Flyout Footer -->
     <Shell.FlyoutFooter>
         <Grid BackgroundColor="#E0E0E0" HeightRequest="50">
@@ -52,6 +49,7 @@
         </Grid>
     </Shell.FlyoutFooter>
 
+    
     <!-- Flyout Items -->
     <FlyoutItem Title="Home">
         <ShellContent Title="Home"
@@ -65,10 +63,16 @@
                       Route="LLMPage" />
     </FlyoutItem>
     
-    <FlyoutItem Title="Whisper Transcription">
-        <ShellContent Title="Whisper Transcription"
+    <FlyoutItem Title="Transcription">
+        <ShellContent Title="Transcription"
                       ContentTemplate="{DataTemplate views:WhisperPage}"
                       Route="WhisperPage" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="Rap Mode">
+        <ShellContent Title="Rap Mode"
+                      ContentTemplate="{DataTemplate views:RapModePage}"
+                      Route="RapModePage" />
     </FlyoutItem>
 
     <FlyoutItem Title="Metrics">

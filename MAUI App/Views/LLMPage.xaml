@@ -3,6 +3,9 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:MAUI_App.Converters"
+             xmlns:vm="clr-namespace:MAUI_App.ViewModels"
+             xmlns:models="clr-namespace:MAUI_App.Models"
+             x:DataType="vm:LLMViewModel"
              Title="LLM Chat">
     
     <ContentPage.Resources>
@@ -46,7 +49,7 @@
                             HeightRequest="325"
                             IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                     
-                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
                         <Button Grid.Column="0"
                                 Text="Generate Response" 
                                 Command="{Binding GenerateCommand}"
@@ -55,14 +58,14 @@
                                 CornerRadius="6"
                                 IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                         
-                        <Button Grid.Column="1"
-                                Text="Stream Response" 
-                                Command="{Binding GenerateStreamingCommand}"
-                                BackgroundColor="Blue"
-                                TextColor="White"
-                                CornerRadius="6"
-                                IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
-                        
+                        <!-- <Button Grid.Column="1" -->
+                        <!--         Text="Stream Response"  -->
+                        <!--         Command="{Binding GenerateStreamingCommand}" -->
+                        <!--         BackgroundColor="Blue" -->
+                        <!--         TextColor="White" -->
+                        <!--         CornerRadius="6" -->
+                        <!--         IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" /> -->
+                        <!-- -->
                         <Button Grid.Column="2"
                                 Text="Clear Chat" 
                                 Command="{Binding ClearConversationCommand}"
@@ -127,7 +130,7 @@
                 <CollectionView ItemsSource="{Binding Conversation}"
                                BackgroundColor="Transparent">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:ConversationMessage">
                             <Grid Margin="10,5">
                                 <!-- User Message (Right aligned) -->
                                 <Frame BackgroundColor="#0078D4"

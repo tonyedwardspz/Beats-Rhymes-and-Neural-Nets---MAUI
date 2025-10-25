@@ -86,12 +86,14 @@ namespace MAUI_App
             builder.Services.AddTransient<LLMViewModel>();
             builder.Services.AddTransient<WhisperPageViewModel>();
             builder.Services.AddTransient<MetricsViewModel>();
+            builder.Services.AddTransient<RapModeViewModel>();
             
             // Register Pages
             builder.Services.AddTransient<LLMPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<AboutPage>();
             builder.Services.AddTransient<MetricsPage>();
+            builder.Services.AddTransient<RapModePage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

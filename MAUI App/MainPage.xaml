@@ -6,77 +6,44 @@
 
     <ScrollView>
         <VerticalStackLayout
-            Padding="30,0"
+            Padding="60,20,60,0"
             Spacing="25">
             
             <Image
-                Source="dotnet_bot.png"
-                HeightRequest="185"
+                Source="beats_splash.png"
+                HeightRequest="400"
                 Aspect="AspectFit"
                 SemanticProperties.Description="Beats, Rhymes, and Neural Nets app logo" />
 
-            <Label
-                Text="Beats, Rhymes, and Neural Nets"
-                Style="{StaticResource Headline}"
-                FontFamily="LibreFranklinExtraBold"
-                TextTransform="Uppercase"
-                SemanticProperties.HeadingLevel="Level1" 
-                HorizontalOptions="Center" />
-
-            <Label
-                Text="Welcome to your LLM-powered MAUI app!"
-                Style="{StaticResource SubHeadline}"
-                SemanticProperties.HeadingLevel="Level2"
-                HorizontalOptions="Center" />
-
-            <!-- Welcome Message -->
-            <Frame BackgroundColor="LightBlue" Padding="20" Margin="0,20">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="🎵 Welcome! 🎵" 
-                           FontSize="20" 
-                           FontAttributes="Bold" 
-                           HorizontalOptions="Center" />
-                    
-                    <Label Text="This app demonstrates how to interface with Large Language Models using .NET MAUI. Use the hamburger menu (☰) to navigate between different sections of the app."
-                           LineBreakMode="WordWrap" 
-                           HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Navigation Guide -->
-            <Frame BackgroundColor="LightGreen" Padding="20">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="📱 Navigation Guide" 
-                           FontSize="18" 
-                           FontAttributes="Bold" 
-                           HorizontalOptions="Center" />
-                    
-                    <StackLayout Spacing="8">
-                        <Label Text="🏠 Home - This welcome page" />
-                        <Label Text="💬 LLM Chat - Interact with the language model" />
-                        <Label Text="⚙️ Settings - Configure app preferences" />
-                        <Label Text="ℹ️ About - Learn more about the app" />
-                    </StackLayout>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Quick Start Button -->
-            <Button
-                Text="Start Chatting with AI 🤖"
-                BackgroundColor="DarkBlue"
-                TextColor="White"
-                FontSize="16"
-                Padding="15"
-                CornerRadius="25"
-                Clicked="OnStartChattingClicked" />
-
-            <!-- Status Display -->
-            <Label
-                x:Name="StatusLabel"
-                Text="Tap the menu button (☰) to get started!"
-                FontAttributes="Italic"
-                HorizontalOptions="Center"
-                TextColor="Gray" />
+            <!-- Navigation Buttons -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="15" Padding="30,50,60,0">
+                <Button Grid.Column="0"
+                        Text="🤖 LLM Chat"
+                        BackgroundColor="#0078D4"
+                        TextColor="White"
+                        CornerRadius="8"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        Clicked="OnLLMChatClicked" />
+                
+                <Button Grid.Column="1"
+                        Text="🎤 Transcription"
+                        BackgroundColor="#28A745"
+                        TextColor="White"
+                        CornerRadius="8"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        Clicked="OnTranscriptionClicked" />
+                
+                <Button Grid.Column="2"
+                        Text="🎵 Rap Mode"
+                        BackgroundColor="#FF6B35"
+                        TextColor="White"
+                        CornerRadius="8"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        Clicked="OnRapModeClicked" />
+            </Grid>
 
         </VerticalStackLayout>
     </ScrollView>

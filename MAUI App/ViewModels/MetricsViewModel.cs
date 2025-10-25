@@ -114,15 +114,29 @@ public class MetricsViewModel : INotifyPropertyChanged
             else
             {
                 _logger.LogError("Failed to load metrics: {Error}", result.ErrorMessage);
-                await Application.Current.Windows[0].Page.DisplayAlert("Error", 
-                    $"Failed to load metrics: {result.ErrorMessage}", "OK");
+                if (Application.Current?.Windows?.Count > 0)
+                {
+                    var window = Application.Current.Windows[0];
+                    if (window?.Page != null)
+                    {
+                        await window.Page.DisplayAlert("Error", 
+                            $"Failed to load metrics: {result.ErrorMessage}", "OK");
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception occurred while loading metrics");
-            await Application.Current.Windows[0].Page.DisplayAlert("Error", 
-                $"Exception occurred: {ex.Message}", "OK");
+            if (Application.Current?.Windows?.Count > 0)
+            {
+                var window = Application.Current.Windows[0];
+                if (window?.Page != null)
+                {
+                    await window.Page.DisplayAlert("Error", 
+                        $"Exception occurred: {ex.Message}", "OK");
+                }
+            }
         }
         finally
         {

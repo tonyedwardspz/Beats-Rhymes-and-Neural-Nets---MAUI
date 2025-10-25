@@ -3,6 +3,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MAUI_App.ViewModels"
+             xmlns:models="clr-namespace:MAUI_App.Models"
              x:DataType="vm:WhisperPageViewModel"
              x:Class="MAUI_App.Views.WhisperPage">
     <ContentPage.Content>
@@ -68,6 +69,7 @@
                             TextColor="Azure"/>
                     
                     <Picker ItemsSource="{Binding AvailableModels}"
+                    x:DataType="models:WhisperModel"
                             SelectedItem="{Binding SelectedModel}"
                             ItemDisplayBinding="{Binding Name}"
                             Title="Select Model" />

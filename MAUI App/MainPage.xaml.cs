@@ -7,18 +7,19 @@
             InitializeComponent();
         }
 
-        private async void OnStartChattingClicked(object? sender, EventArgs e)
+        private async void OnLLMChatClicked(object sender, EventArgs e)
         {
-            try
-            {
-                // Navigate to the LLM Chat page
-                await Shell.Current.GoToAsync("//LLMPage");
-                StatusLabel.Text = "Navigating to LLM Chat...";
-            }
-            catch (Exception ex)
-            {
-                StatusLabel.Text = $"Navigation error: {ex.Message}";
-            }
+            await Shell.Current.GoToAsync("//LLMPage");
+        }
+
+        private async void OnTranscriptionClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("//WhisperPage");
+        }
+
+        private async void OnRapModeClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("//RapModePage");
         }
     }
 }

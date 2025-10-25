@@ -2,6 +2,7 @@
 <ContentPage x:Class="MAUI_App.Views.SettingsPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MAUI_App.ViewModels"
              Title="Settings"
              BackgroundColor="#1E1E1E">
 

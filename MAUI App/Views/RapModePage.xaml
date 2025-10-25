@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MAUI_App.Views.RapModePage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Rap Mode">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+            
+            <!-- Page Title -->
+            <Label Text="🎤 Rap Mode" 
+                   FontSize="32" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center"
+                   TextColor="White" />
+            
+            <!-- Coming Soon Message -->
+            <Frame BackgroundColor="#2D2D30" Padding="20" CornerRadius="8">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🚧 Coming Soon" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"
+                           TextColor="White" />
+                    
+                    <Label Text="Rap Mode features are under development. Stay tuned for exciting new capabilities!" 
+                           FontSize="16" 
+                           TextColor="LightGray" 
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

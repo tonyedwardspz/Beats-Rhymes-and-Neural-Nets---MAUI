@@ -211,7 +211,10 @@ public class WhisperPageViewModel : BaseViewModel
 
 	async void Stop()
 	{
-		audioSource = await audioRecorder.StopAsync();
+		if (audioRecorder != null)
+		{
+			audioSource = await audioRecorder.StopAsync();
+		}
 		
 		NotifyPropertyChanged(nameof(IsRecording));
 		NotifyPropertyChanged(nameof(RecordingButtonText));
@@ -283,7 +286,7 @@ public class WhisperPageViewModel : BaseViewModel
 
 	void StopPlay()
 	{
-		audioPlayer.Stop();
+		audioPlayer?.Stop();
 	}
 
 	async void StartChunkedTranscription()
