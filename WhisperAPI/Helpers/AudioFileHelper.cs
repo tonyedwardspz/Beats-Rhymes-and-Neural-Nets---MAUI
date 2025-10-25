@@ -17,6 +17,31 @@ public class AudioFileHelper
     }
 
     /// <summary>
+    /// Gets the duration of an audio file in seconds.
+    /// </summary>
+    /// <param name="filePath">Path to the audio file</param>
+    /// <returns>Duration in seconds, or null if unable to determine</returns>
+    public async Task<double?> GetAudioDurationAsync(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+
+            // Try to get duration using FFMPEG
+            var duration = await _transcodeService.GetDurationAsync(filePath);
+            return duration;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to get audio duration for file: {FilePath}", filePath);
+            return null;
+        }
+    }
+
+    /// <summary>
     /// Validates and processes an audio file, converting it to WAV format if necessary.
     /// </summary>
     /// <param name="filePath">Path to the audio file to process</param>

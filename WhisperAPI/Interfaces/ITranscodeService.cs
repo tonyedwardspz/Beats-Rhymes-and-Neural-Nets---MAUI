@@ -18,4 +18,11 @@ public interface ITranscodeService
     /// <param name="filePath">File Path.</param>
     /// <returns>Path to transcoded file.</returns>
     Task<string> ProcessFile(string filePath);
+
+    /// <summary>
+    /// Gets the duration of an audio file in seconds.
+    /// </summary>
+    /// <param name="filePath">File Path.</param>
+    /// <returns>Duration in seconds, or null if unable to determine.</returns>
+    Task<double?> GetDurationAsync(string filePath);
 }

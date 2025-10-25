@@ -136,4 +136,24 @@ public class FfMpegTranscodeService : ITranscodeService
             return string.Empty;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<double?> GetDurationAsync(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+
+            var mediaInfo = await FFmpeg.GetMediaInfo(filePath);
+            return mediaInfo.Duration.TotalSeconds;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to get duration for {filePath}: {ex.Message}");
+            return null;
+        }
+    }
 }

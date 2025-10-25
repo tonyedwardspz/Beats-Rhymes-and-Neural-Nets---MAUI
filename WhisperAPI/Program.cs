@@ -78,6 +78,7 @@ else
 // Add services to the container
 builder.Services.AddSingleton<ITranscodeService, FfMpegTranscodeService>();
 builder.Services.AddSingleton<AudioFileHelper>();
+builder.Services.AddSingleton<IMetricsService, MetricsService>();
 builder.Services.AddSingleton<IWhisperService, WhisperService>();
 
 var app = builder.Build();

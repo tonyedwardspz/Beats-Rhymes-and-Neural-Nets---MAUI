@@ -14,12 +14,14 @@ public class WhisperService : IWhisperService
     private readonly ILogger<WhisperService> _logger;
     private readonly WhisperFactory _whisperFactory;
     private readonly AudioFileHelper _audioFileHelper;
+    private readonly IMetricsService _metricsService;
 
-    public WhisperService(IConfiguration configuration, ILogger<WhisperService> logger, AudioFileHelper audioFileHelper)
+    public WhisperService(IConfiguration configuration, ILogger<WhisperService> logger, AudioFileHelper audioFileHelper, IMetricsService metricsService)
     {
         _modelFileName = configuration["Whisper:ModelPath"] ?? "./WhisperModels/ggml-base.bin";
         _logger = logger;
         _audioFileHelper = audioFileHelper;
+        _metricsService = metricsService;
         
         // Initialize WhisperFactory at startup
         if (!File.Exists(_modelFileName))
@@ -34,26 +36,64 @@ public class WhisperService : IWhisperService
 
     public async Task<JsonArray> TranscribeFilePathAsync(string filePath)
     {
-        // Process the audio file (validate and convert if necessary)
-        var processedFilePath = await _audioFileHelper.ProcessAudioFileAsync(filePath);
-
-        // Perform transcription
-        using var whisperLogger = LogProvider.AddConsoleLogging(WhisperLogLevel.Debug);
-        using var processor = _whisperFactory.CreateBuilder()
-            .WithLanguage("auto")
-            .Build();
-        using var fileStream = File.OpenRead(processedFilePath);
-
-        JsonArray results = new JsonArray();
-        await foreach (var result in processor.ProcessAsync(fileStream))
+        var startTime = DateTime.UtcNow;
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var metrics = new TranscriptionMetrics
         {
-            results.Add($"{result.Start}->{result.End}: {result.Text}");
+            Timestamp = startTime,
+            ModelName = Path.GetFileNameWithoutExtension(_modelFileName),
+            FileName = Path.GetFileName(filePath),
+            FileSizeBytes = new FileInfo(filePath).Length
+        };
+
+        try
+        {
+            // Get audio duration before processing
+            var audioDuration = await _audioFileHelper.GetAudioDurationAsync(filePath);
+            metrics.AudioDurationSeconds = audioDuration;
+
+            // Process the audio file (validate and convert if necessary)
+            var preprocessingStart = stopwatch.ElapsedMilliseconds;
+            var processedFilePath = await _audioFileHelper.ProcessAudioFileAsync(filePath);
+            var preprocessingTime = stopwatch.ElapsedMilliseconds - preprocessingStart;
+            metrics.PreprocessingTimeMs = preprocessingTime;
+
+            // Perform transcription
+            var transcriptionStart = stopwatch.ElapsedMilliseconds;
+            using var whisperLogger = LogProvider.AddConsoleLogging(WhisperLogLevel.Debug);
+            using var processor = _whisperFactory.CreateBuilder()
+                .WithLanguage("auto")
+                .Build();
+            using var fileStream = File.OpenRead(processedFilePath);
+
+            JsonArray results = new JsonArray();
+            await foreach (var result in processor.ProcessAsync(fileStream))
+            {
+                results.Add($"{result.Start}->{result.End}: {result.Text}");
+            }
+            var transcriptionTime = stopwatch.ElapsedMilliseconds - transcriptionStart;
+            metrics.TranscriptionTimeMs = transcriptionTime;
+
+            // Clean up converted file if it's different from the original
+            _audioFileHelper.CleanupConvertedFile(filePath, processedFilePath);
+
+            // Record successful metrics
+            stopwatch.Stop();
+            metrics.TotalTimeMs = stopwatch.ElapsedMilliseconds;
+            metrics.Success = true;
+            await _metricsService.RecordMetricsAsync(metrics);
+
+            return results;
         }
-
-        // Clean up converted file if it's different from the original
-        _audioFileHelper.CleanupConvertedFile(filePath, processedFilePath);
-
-        return results;
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            metrics.TotalTimeMs = stopwatch.ElapsedMilliseconds;
+            metrics.Success = false;
+            metrics.ErrorMessage = ex.Message;
+            await _metricsService.RecordMetricsAsync(metrics);
+            throw;
+        }
     }
 
 
