@@ -1,5 +1,9 @@
 
 
+using Microsoft.Maui.Storage;
+using Plugin.Maui.Audio;
+using System.ComponentModel;
+using Microsoft.Maui.Devices;
 
 namespace MAUI_App.ViewModels;
 
@@ -31,6 +35,7 @@ public class WhisperPageViewModel : BaseViewModel
 		{
 			isProcessing = value;
 			NotifyPropertyChanged();
+			TranscribeFileCommand.ChangeCanExecute();
 		}
 	}
 
@@ -44,6 +49,22 @@ public class WhisperPageViewModel : BaseViewModel
 			NotifyPropertyChanged();
 		}
 	}
+
+	private string selectedFileName = string.Empty;
+	public string SelectedFileName
+	{
+		get => selectedFileName;
+		set
+		{
+			selectedFileName = value;
+			NotifyPropertyChanged();
+			NotifyPropertyChanged(nameof(HasSelectedFile));
+		}
+	}
+
+	public bool HasSelectedFile => !string.IsNullOrEmpty(selectedFileName);
+
+	private string selectedFilePath = string.Empty;
 
 	bool isPlaying = false;
 	public bool IsPlaying
@@ -64,6 +85,8 @@ public class WhisperPageViewModel : BaseViewModel
 	public Command PlayCommand { get; }
 	public Command StartChunkedCommand { get; }
 	public Command StopChunkedCommand { get; }
+	public Command SelectFileCommand { get; }
+	public Command TranscribeFileCommand { get; }
 
 	public WhisperPageViewModel(
 		IAudioManager audioManager,
@@ -77,6 +100,8 @@ public class WhisperPageViewModel : BaseViewModel
 		StopPlayCommand = new Command(StopPlay, () => IsPlaying);
 		StartChunkedCommand = new Command(StartChunkedTranscription, () => !isChunkedRecording);
 		StopChunkedCommand = new Command(StopChunkedTranscription, () => isChunkedRecording);
+		SelectFileCommand = new Command(SelectFile);
+		TranscribeFileCommand = new Command(TranscribeFile, () => HasSelectedFile && !IsProcessing);
 
 
 		this.audioManager = audioManager;
@@ -291,6 +316,108 @@ public class WhisperPageViewModel : BaseViewModel
 			{
 				chunkedSessionId = null;
 			}
+		}
+	}
+
+	async void SelectFile()
+	{
+		try
+		{
+			// First try with specific audio file types
+			var customFileType = new FilePickerFileType(
+				new Dictionary<DevicePlatform, IEnumerable<string>>
+				{
+					{ DevicePlatform.iOS, new[] { "public.audio" } },
+					{ DevicePlatform.Android, new[] { "audio/*" } },
+					{ DevicePlatform.WinUI, new[] { ".wav", ".mp3", ".m4a", ".aac", ".ogg", ".flac" } },
+					{ DevicePlatform.macOS, new[] { "public.audio" } }
+				});
+
+			var result = await FilePicker.Default.PickAsync(new PickOptions
+			{
+				PickerTitle = "Select an audio file",
+				FileTypes = customFileType
+			});
+
+			if (result != null)
+			{
+				SelectedFileName = result.FileName;
+				selectedFilePath = result.FullPath;
+				TranscribeFileCommand.ChangeCanExecute();
+			}
+		}
+		catch (Exception ex)
+		{
+			// If specific audio types fail, try with all files
+			try
+			{
+				var result = await FilePicker.Default.PickAsync(new PickOptions
+				{
+					PickerTitle = "Select an audio file (all files)"
+				});
+
+				if (result != null)
+				{
+					// Check if the file has an audio extension
+					var extension = Path.GetExtension(result.FileName).ToLowerInvariant();
+					var audioExtensions = new[] { ".wav", ".mp3", ".m4a", ".aac", ".ogg", ".flac", ".wma" };
+					
+					if (audioExtensions.Contains(extension))
+					{
+						SelectedFileName = result.FileName;
+						selectedFilePath = result.FullPath;
+						TranscribeFileCommand.ChangeCanExecute();
+					}
+					else
+					{
+						await AppShell.Current.DisplayAlert("Invalid File", 
+							"Please select an audio file (WAV, MP3, M4A, AAC, OGG, FLAC, WMA)", "OK");
+					}
+				}
+			}
+			catch (Exception fallbackEx)
+			{
+				await AppShell.Current.DisplayAlert("Error", 
+					$"Failed to select file: {ex.Message}\nFallback also failed: {fallbackEx.Message}", "OK");
+			}
+		}
+	}
+
+	async void TranscribeFile()
+	{
+		if (string.IsNullOrEmpty(selectedFilePath))
+		{
+			await AppShell.Current.DisplayAlert("Error", "No file selected. Please select a file first.", "OK");
+			return;
+		}
+
+		IsProcessing = true;
+		TranscribeFileCommand.ChangeCanExecute();
+		TranscriptionResult = "Processing file...";
+
+		try
+		{
+			// Send to Whisper API for transcription
+			var result = await whisperApiService.TranscribeFileAsync(selectedFilePath, "File Upload");
+			
+			if (result.IsSuccess && result.Data != null)
+			{
+				// Join all transcription results
+				TranscriptionResult = string.Join("\n", result.Data.Results);
+			}
+			else
+			{
+				TranscriptionResult = $"Transcription failed: {result.ErrorMessage}";
+			}
+		}
+		catch (Exception ex)
+		{ 
+			TranscriptionResult = $"Error: {ex.Message}";
+		}
+		finally
+		{
+			IsProcessing = false;
+			TranscribeFileCommand.ChangeCanExecute();
 		}
 	}
 }

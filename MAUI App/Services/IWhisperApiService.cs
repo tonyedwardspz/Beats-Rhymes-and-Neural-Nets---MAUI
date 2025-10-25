@@ -29,4 +29,18 @@ public interface IWhisperApiService
         string? transcriptionType = null,
         string? sessionId = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Transcribes an audio file from the file system
+    /// </summary>
+    /// <param name="filePath">The path to the audio file to transcribe</param>
+    /// <param name="transcriptionType">The type of transcription (e.g., "File Upload")</param>
+    /// <param name="sessionId">Session ID for grouping related transcriptions</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Transcription results</returns>
+    Task<ApiResult<TranscriptionResponse>> TranscribeFileAsync(
+        string filePath,
+        string? transcriptionType = null,
+        string? sessionId = null,
+        CancellationToken cancellationToken = default);
 }

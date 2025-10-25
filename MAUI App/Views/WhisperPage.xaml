@@ -8,7 +8,7 @@
     <ContentPage.Content>
         
             <Grid Margin="20" RowSpacing="10"
-                  VerticalOptions="Center" RowDefinitions="*,*,*,*,*,*,*,*,*,200">
+                  VerticalOptions="Center" RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*,*,200">
                     <Label Text="This is the recording page" Grid.Row="1" />
                     
                     <Button Grid.Row="2"
@@ -40,12 +40,32 @@
                             Text="Stop Chunked Transcription"
                             Command="{Binding StopChunkedCommand}"
                             BackgroundColor="Red" />
+
+                    <!-- File Upload Section -->
+                    <Label Text="File Upload" Grid.Row="9" FontSize="16" FontAttributes="Bold" Margin="0,10,0,5" />
+                    
+                    <Button Grid.Row="10"
+                            Text="Select Audio File"
+                            Command="{Binding SelectFileCommand}"
+                            BackgroundColor="LightBlue" />
+                    
+                    <Label Text="{Binding SelectedFileName}" 
+                           Grid.Row="11" 
+                           FontSize="12" 
+                           TextColor="Gray" 
+                           HorizontalOptions="Center" />
+                    
+                    <Button Grid.Row="12"
+                            Text="Transcribe Selected File"
+                            Command="{Binding TranscribeFileCommand}"
+                            BackgroundColor="Green"
+                            IsEnabled="{Binding HasSelectedFile}" />
                 
                     
                     
                     
                         <Label Text="{Binding TranscriptionResult}"
-                               Grid.Row="9"
+                               Grid.Row="13"
                                FontSize="14"
                                TextColor="Black"
                                BackgroundColor="LightGray"

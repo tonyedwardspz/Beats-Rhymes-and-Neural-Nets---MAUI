@@ -108,19 +108,14 @@ public class WhisperService : IWhisperService
         {
             if (request.File == null || request.File.Length == 0)
             {
-                // return Results.BadRequest("No file provided or file is empty");
+                _logger.LogWarning("No file provided or file is empty");
                 return new JsonArray();
             }
 
-            // Check if it's a WAV file
-            if (!request.File.ContentType.Equals("audio/wav", StringComparison.OrdinalIgnoreCase) &&
-                !request.File.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-            {
-                // return Results.BadRequest("File must be a WAV audio file");
-                return new JsonArray();
-            }
+            _logger.LogInformation("Processing uploaded file: {FileName}, ContentType: {ContentType}, Size: {Size} bytes", 
+                request.File.FileName, request.File.ContentType, request.File.Length);
 
-            // Create a temporary WAV file path with a unique name
+            // Create a temporary file path with a unique name
             var tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}_{request.File.FileName}");
             try
             {
@@ -155,7 +150,7 @@ public class WhisperService : IWhisperService
                         request.File.Length, tempFileInfo.Length);
                 }
 
-                // Transcribe the file
+                // Use the same transcription logic as TranscribeFilePathAsync which includes audio conversion
                 var results = await whisperService.TranscribeFilePathAsync(tempFilePath, request.TranscriptionType, request.SessionId);
                 return results;
             }
@@ -170,7 +165,7 @@ public class WhisperService : IWhisperService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Transcription failed");
+            _logger.LogError(ex, "Transcription failed for file: {FileName}", request.File?.FileName);
             return new JsonArray();
         }
     }
