@@ -73,15 +73,22 @@ namespace MAUI_App
                 client.BaseAddress = new Uri("http://localhost:5087"); // WhisperAPI
                 client.Timeout = TimeSpan.FromMinutes(5);
             });
+            builder.Services.AddHttpClient<IMetricsApiService, MetricsApiService>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5087"); // WhisperAPI
+                client.Timeout = TimeSpan.FromMinutes(5);
+            });
             
             // Register ViewModels
             builder.Services.AddTransient<LLMViewModel>();
             builder.Services.AddTransient<WhisperPageViewModel>();
+            builder.Services.AddTransient<MetricsViewModel>();
             
             // Register Pages
             builder.Services.AddTransient<LLMPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<AboutPage>();
+            builder.Services.AddTransient<MetricsPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

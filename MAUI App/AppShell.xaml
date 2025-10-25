@@ -71,6 +71,12 @@
                       Route="WhisperPage" />
     </FlyoutItem>
 
+    <FlyoutItem Title="Metrics">
+        <ShellContent Title="Metrics"
+                      ContentTemplate="{DataTemplate views:MetricsPage}"
+                      Route="MetricsPage" />
+    </FlyoutItem>
+
     <!-- You can add more flyout items here -->
     <FlyoutItem Title="Settings">
         <ShellContent Title="Settings"

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MAUI_App.Views.MetricsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MAUI_App.ViewModels"
+             xmlns:models="clr-namespace:MAUI_App.Models"
+             x:DataType="vm:MetricsViewModel"
+             Title="Transcription Metrics">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header with refresh button -->
+        <Grid Grid.Row="0" Padding="16,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <Label Grid.Column="0" 
+                   Text="Transcription Performance Metrics" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   VerticalOptions="Center" />
+            
+            <Button Grid.Column="1" 
+                    Text="Refresh" 
+                    Command="{Binding LoadMetricsCommand}"
+                    IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}" />
+        </Grid>
+
+        <!-- Metrics table -->
+        <ScrollView Grid.Row="1">
+            <CollectionView ItemsSource="{Binding Metrics}" 
+                           BackgroundColor="White"
+                           Margin="8">
+                <CollectionView.Header>
+                    <Grid BackgroundColor="#F5F5F5" Padding="8,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Header buttons for sorting -->
+                        <Button Grid.Column="0" 
+                                Text="Time" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="Timestamp"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="1" 
+                                Text="Model" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="ModelName"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="2" 
+                                Text="File" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="FileName"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="3" 
+                                Text="Size" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="FileSizeBytes"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="4" 
+                                Text="Duration" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="AudioDurationSeconds"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="5" 
+                                Text="Total" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="TotalTimeMs"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="6" 
+                                Text="Preproc" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="PreprocessingTimeMs"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="7" 
+                                Text="Transcribe" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="TranscriptionTimeMs"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="8" 
+                                Text="Status" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                Command="{Binding SortCommand}" 
+                                CommandParameter="Success"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
+                    </Grid>
+                </CollectionView.Header>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TranscriptionMetrics">
+                        <Grid Padding="8,6" BackgroundColor="White">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Column="0" 
+                                   Text="{Binding TimestampDisplay}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center"
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="1" 
+                                   Text="{Binding ModelName}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center"
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="2" 
+                                   Text="{Binding FileName}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" 
+                                   LineBreakMode="TailTruncation"
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="3" 
+                                   Text="{Binding FileSizeDisplay}" 
+                                   FontSize="20"  
+                                   VerticalOptions="Center" 
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="4" 
+                                   Text="{Binding DurationDisplay}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" 
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="5" 
+                                   Text="{Binding TotalTimeDisplay}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" 
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="6" 
+                                   Text="{Binding PreprocessingTimeDisplay}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" 
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="7" 
+                                   Text="{Binding TranscriptionTimeDisplay}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" 
+                                   TextColor="DarkSlateGrey"/>
+                            
+                            <Label Grid.Column="8" 
+                                   Text="{Binding SuccessDisplay}" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" 
+                                   HorizontalOptions="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </Grid>
+</ContentPage>

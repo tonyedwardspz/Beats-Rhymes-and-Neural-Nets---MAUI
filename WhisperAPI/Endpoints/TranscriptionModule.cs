@@ -10,6 +10,7 @@ public static class TranscriptionModule
             .WithTags("Whisper");
 
         group.MapGet("modelDetails", GetModelDetails);
+        group.MapGet("metrics", GetMetrics);
         group.MapPost("transcribe", TranscribeFilePath);
         group.MapPost("transcribe-wav", TranscribeFile).DisableAntiforgery();
     }
@@ -17,6 +18,19 @@ public static class TranscriptionModule
     private static async Task<string> GetModelDetails(IWhisperService whisperService)
     {
         return await whisperService.GetModelDetailsAsync();
+    }
+
+    private static async Task<IResult> GetMetrics(IMetricsService metricsService)
+    {
+        try
+        {
+            var metrics = await metricsService.GetAllMetricsAsync();
+            return Results.Ok(new { transcriptionMetrics = metrics });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Failed to get metrics: {ex.Message}");
+        }
     }
 
     private static async Task<IResult> TranscribeFilePath(IWhisperService whisperService, [FromBody] TranscribeFilePathRequest request)
