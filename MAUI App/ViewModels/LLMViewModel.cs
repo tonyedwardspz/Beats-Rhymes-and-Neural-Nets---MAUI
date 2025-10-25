@@ -1,6 +1,8 @@
 
 using Microsoft.Maui.ApplicationModel;
 using System.Text.Json;
+using System.Collections.ObjectModel;
+using MAUI_App.Models;
 
 namespace MAUI_App.ViewModels;
 
@@ -17,6 +19,7 @@ public class LLMViewModel : INotifyPropertyChanged
     private bool _isGenerating = false;
     private bool _isModelReady = false;
     private string _statusMessage = string.Empty;
+    private ObservableCollection<ConversationMessage> _conversation = new();
 
     public LLMViewModel(ILLMApiService llmApiService, ILogger<LLMViewModel> logger)
     {
@@ -27,6 +30,7 @@ public class LLMViewModel : INotifyPropertyChanged
         GenerateCommand = new Command(async () => await GenerateResponseAsync(), () => !IsGenerating && !string.IsNullOrWhiteSpace(Prompt));
         GenerateStreamingCommand = new Command(async () => await GenerateStreamingResponseAsync(), () => !IsGenerating && !string.IsNullOrWhiteSpace(Prompt));
         CheckModelInfoCommand = new Command(async () => await CheckModelInfoAsync());
+        ClearConversationCommand = new Command(() => ClearConversation());
         
         // Load model info on startup
         _ = Task.Run(async () => await CheckModelInfoAsync());
@@ -85,6 +89,13 @@ public class LLMViewModel : INotifyPropertyChanged
     public ICommand GenerateCommand { get; }
     public ICommand GenerateStreamingCommand { get; }
     public ICommand CheckModelInfoCommand { get; }
+    public ICommand ClearConversationCommand { get; }
+
+    public ObservableCollection<ConversationMessage> Conversation
+    {
+        get => _conversation;
+        set => SetProperty(ref _conversation, value);
+    }
 
     /// <summary>
     /// Generates a complete response (non-streaming)
@@ -94,27 +105,61 @@ public class LLMViewModel : INotifyPropertyChanged
         if (string.IsNullOrWhiteSpace(Prompt))
             return;
 
+        // Add user prompt to conversation
+        var userMessage = new ConversationMessage
+        {
+            Content = Prompt,
+            IsUser = true
+        };
+        Conversation.Add(userMessage);
+
+        // Clear the prompt
+        var currentPrompt = Prompt;
+        Prompt = string.Empty;
+
         IsGenerating = true;
         StatusMessage = "Generating response...";
-        Response = string.Empty;
 
         try
         {
-            var result = await _llmApiService.GenerateResponseAsync(Prompt);
+            var result = await _llmApiService.GenerateResponseAsync(currentPrompt);
             
             if (result.IsSuccess && result.Data != null)
             {
-                Response = result.Data.Response;
+                // Add AI response to conversation
+                var aiMessage = new ConversationMessage
+                {
+                    Content = result.Data.Response,
+                    IsUser = false
+                };
+                Conversation.Add(aiMessage);
+                
                 StatusMessage = "Response generated successfully";
             }
             else
             {
+                // Add error message to conversation
+                var errorMessage = new ConversationMessage
+                {
+                    Content = $"Error: {result.ErrorMessage}",
+                    IsUser = false
+                };
+                Conversation.Add(errorMessage);
+                
                 StatusMessage = $"Error: {result.ErrorMessage}";
                 _logger.LogError("Failed to generate response: {Error}", result.ErrorMessage);
             }
         }
         catch (Exception ex)
         {
+            // Add error message to conversation
+            var errorMessage = new ConversationMessage
+            {
+                Content = $"Unexpected error: {ex.Message}",
+                IsUser = false
+            };
+            Conversation.Add(errorMessage);
+            
             StatusMessage = $"Unexpected error: {ex.Message}";
             _logger.LogError(ex, "Unexpected error during response generation");
         }
@@ -132,21 +177,42 @@ public class LLMViewModel : INotifyPropertyChanged
         if (string.IsNullOrWhiteSpace(Prompt))
             return;
 
+        // Add user prompt to conversation
+        var userMessage = new ConversationMessage
+        {
+            Content = Prompt,
+            IsUser = true
+        };
+        Conversation.Add(userMessage);
+
+        // Clear the prompt
+        var currentPrompt = Prompt;
+        Prompt = string.Empty;
+
         IsGenerating = true;
         StatusMessage = "Generating streaming response...";
-        Response = string.Empty;
+
+        // Create AI message for streaming
+        var aiMessage = new ConversationMessage
+        {
+            Content = string.Empty,
+            IsUser = false
+        };
+        Conversation.Add(aiMessage);
 
         try
         {
             var result = await _llmApiService.GenerateStreamingResponseAsync(
-                Prompt,
+                currentPrompt,
                 token =>
                 {
                     // This callback is called for each token received
                     // Update UI on the main thread
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        Response += token;
+                        aiMessage.Content += token;
+                        // Trigger property change for the conversation
+                        OnPropertyChanged(nameof(Conversation));
                     });
                 });
             
@@ -156,12 +222,14 @@ public class LLMViewModel : INotifyPropertyChanged
             }
             else
             {
+                aiMessage.Content = $"Error: {result.ErrorMessage}";
                 StatusMessage = $"Error: {result.ErrorMessage}";
                 _logger.LogError("Failed to generate streaming response: {Error}", result.ErrorMessage);
             }
         }
         catch (Exception ex)
         {
+            aiMessage.Content = $"Unexpected error: {ex.Message}";
             StatusMessage = $"Unexpected error: {ex.Message}";
             _logger.LogError(ex, "Unexpected error during streaming response generation");
         }
@@ -169,6 +237,15 @@ public class LLMViewModel : INotifyPropertyChanged
         {
             IsGenerating = false;
         }
+    }
+
+    /// <summary>
+    /// Clears the conversation history
+    /// </summary>
+    private void ClearConversation()
+    {
+        Conversation.Clear();
+        StatusMessage = "Conversation cleared";
     }
 
     /// <summary>

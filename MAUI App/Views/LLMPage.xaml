@@ -46,7 +46,7 @@
                             HeightRequest="325"
                             IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                     
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
                         <Button Grid.Column="0"
                                 Text="Generate Response" 
                                 Command="{Binding GenerateCommand}"
@@ -62,6 +62,13 @@
                                 TextColor="White"
                                 CornerRadius="6"
                                 IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
+                        
+                        <Button Grid.Column="2"
+                                Text="Clear Chat" 
+                                Command="{Binding ClearConversationCommand}"
+                                BackgroundColor="Red"
+                                TextColor="White"
+                                CornerRadius="6" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
@@ -99,14 +106,14 @@
             </Frame>
         </Grid>
         
-        <!-- Right Column: Results -->
+        <!-- Right Column: Conversation -->
         <Grid Grid.Column="1" VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             
-            <Label Text="Transcription Results" 
+            <Label Text="Conversation" 
                    Grid.Row="0"
                    FontSize="18" 
                    FontAttributes="Bold" 
@@ -115,14 +122,42 @@
             
             <ScrollView Grid.Row="1" 
                        VerticalOptions="FillAndExpand"
-                       BackgroundColor="LightGray">
-                <Label Text="{Binding Response}" 
-                       FontSize="16"
-                       TextColor="Black"
-                       BackgroundColor="LightGray"
-                       Padding="15"
-                       VerticalOptions="FillAndExpand"
-                       LineBreakMode="WordWrap" />
+                       BackgroundColor="#1E1E1E"
+                       x:Name="ConversationScrollView">
+                <CollectionView ItemsSource="{Binding Conversation}"
+                               BackgroundColor="Transparent">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="10,5">
+                                <!-- User Message (Right aligned) -->
+                                <Frame BackgroundColor="#0078D4"
+                                       Padding="15"
+                                       CornerRadius="15"
+                                       Margin="100,0,0,0"
+                                       HorizontalOptions="End"
+                                       IsVisible="{Binding IsUser}">
+                                    <Label Text="{Binding Content}"
+                                           TextColor="White"
+                                           FontSize="14"
+                                           LineBreakMode="WordWrap" />
+                                </Frame>
+                                
+                                <!-- AI Message (Left aligned) -->
+                                <Frame BackgroundColor="#2D2D30"
+                                       Padding="15"
+                                       CornerRadius="15"
+                                       Margin="0,0,100,0"
+                                       HorizontalOptions="Start"
+                                       IsVisible="{Binding IsUser, Converter={StaticResource InvertedBoolConverter}}">
+                                    <Label Text="{Binding Content}"
+                                           TextColor="White"
+                                           FontSize="14"
+                                           LineBreakMode="WordWrap" />
+                                </Frame>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </ScrollView>
         </Grid>
     </Grid>
