@@ -2,31 +2,45 @@
 <ContentPage x:Class="MAUI_App.Views.SettingsPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             Title="Settings">
+             Title="Settings"
+             BackgroundColor="#1E1E1E">
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
             
             <!-- App Settings Section -->
-            <Frame BackgroundColor="LightBlue" Padding="15">
+            <Frame BackgroundColor="#2D2D30" 
+                   Padding="15" 
+                   CornerRadius="8">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="App Settings" 
                            FontSize="18" 
                            FontAttributes="Bold" 
-                           HorizontalOptions="Center" />
+                           HorizontalOptions="Center"
+                           TextColor="White" />
                     
                     <!-- API Configuration -->
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="LLMAPI Base URL:" FontAttributes="Bold" />
+                        <Label Text="LLMAPI Base URL:" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
                         <Entry x:Name="ApiUrlEntry" 
                                Text="http://localhost:5000"
-                               Placeholder="Enter LLMAPI URL" />
+                               Placeholder="Enter LLMAPI URL"
+                               PlaceholderColor="Gray"
+                               TextColor="White"
+                               BackgroundColor="#1E1E1E" />
                     </VerticalStackLayout>
                     
                     <!-- Theme Selection -->
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="Theme:" FontAttributes="Bold" />
-                        <Picker x:Name="ThemePicker" Title="Select Theme">
+                        <Label Text="Theme:" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <Picker x:Name="ThemePicker" 
+                                Title="Select Theme"
+                                TextColor="White"
+                                BackgroundColor="#1E1E1E">
                             <Picker.ItemsSource>
                                 <x:Array Type="{x:Type x:String}">
                                     <x:String>Light</x:String>
@@ -39,23 +53,104 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- LLM Settings Section -->
-            <Frame BackgroundColor="LightGreen" Padding="15">
+            <!-- LLM Model Configuration Section -->
+            <Frame BackgroundColor="#2D2D30" 
+                   Padding="15" 
+                   CornerRadius="8">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="LLM Settings" 
+                    <Label Text="🤖 LLM Model Configuration" 
                            FontSize="18" 
                            FontAttributes="Bold" 
-                           HorizontalOptions="Center" />
+                           HorizontalOptions="Center"
+                           TextColor="White" />
+                    
+                    <!-- Context Size -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Context Size (tokens):" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <Slider x:Name="ContextSizeSlider" 
+                                Minimum="512" 
+                                Maximum="8192" 
+                                Value="2048"
+                                ThumbColor="#0078D4"
+                                MinimumTrackColor="#0078D4" />
+                        <Label Text="{Binding Source={x:Reference ContextSizeSlider}, Path=Value, StringFormat='{0:F0} tokens'}" 
+                               HorizontalOptions="Center"
+                               TextColor="LightGray" />
+                    </VerticalStackLayout>
+                    
+                    <!-- GPU Layer Count -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="GPU Layer Count:" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <Slider x:Name="GpuLayersSlider" 
+                                Minimum="0" 
+                                Maximum="50" 
+                                Value="0"
+                                ThumbColor="#0078D4"
+                                MinimumTrackColor="#0078D4" />
+                        <Label Text="{Binding Source={x:Reference GpuLayersSlider}, Path=Value, StringFormat='{0:F0} layers'}" 
+                               HorizontalOptions="Center"
+                               TextColor="LightGray" />
+                    </VerticalStackLayout>
+                    
+                    <!-- Batch Size -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Batch Size:" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <Entry x:Name="BatchSizeEntry" 
+                               Text="512"
+                               Placeholder="Enter batch size"
+                               PlaceholderColor="Gray"
+                               TextColor="White"
+                               BackgroundColor="#1E1E1E"
+                               Keyboard="Numeric" />
+                    </VerticalStackLayout>
+                    
+                    <!-- Thread Count -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Thread Count (0 = auto):" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <Entry x:Name="ThreadCountEntry" 
+                               Text="0"
+                               Placeholder="Enter thread count (0 for auto)"
+                               PlaceholderColor="Gray"
+                               TextColor="White"
+                               BackgroundColor="#1E1E1E"
+                               Keyboard="Numeric" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- LLM Request Settings Section -->
+            <Frame BackgroundColor="#2D2D30" 
+                   Padding="15" 
+                   CornerRadius="8">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="⚙️ LLM Request Settings" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"
+                           TextColor="White" />
                     
                     <!-- Request Timeout -->
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="Request Timeout (minutes):" FontAttributes="Bold" />
+                        <Label Text="Request Timeout (minutes):" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
                         <Slider x:Name="TimeoutSlider" 
                                 Minimum="1" 
                                 Maximum="10" 
-                                Value="5" />
+                                Value="5"
+                                ThumbColor="#0078D4"
+                                MinimumTrackColor="#0078D4" />
                         <Label Text="{Binding Source={x:Reference TimeoutSlider}, Path=Value, StringFormat='{0:F0} minutes'}" 
-                               HorizontalOptions="Center" />
+                               HorizontalOptions="Center"
+                               TextColor="LightGray" />
                     </VerticalStackLayout>
                     
                     <!-- Auto-save responses -->
@@ -63,8 +158,12 @@
                         <Label Grid.Column="0" 
                                Text="Auto-save responses" 
                                FontAttributes="Bold" 
+                               TextColor="White"
                                VerticalOptions="Center" />
-                        <Switch Grid.Column="1" x:Name="AutoSaveSwitch" />
+                        <Switch Grid.Column="1" 
+                                x:Name="AutoSaveSwitch"
+                                ThumbColor="#0078D4"
+                                OnColor="#0078D4" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
@@ -75,12 +174,14 @@
                         Text="Save Settings" 
                         BackgroundColor="Green" 
                         TextColor="White"
+                        CornerRadius="6"
                         Clicked="OnSaveSettingsClicked" />
                 
                 <Button Grid.Column="1" 
                         Text="Reset to Default" 
                         BackgroundColor="Orange" 
                         TextColor="White"
+                        CornerRadius="6"
                         Clicked="OnResetSettingsClicked" />
             </Grid>
 

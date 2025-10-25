@@ -50,3 +50,22 @@ public class ApiConfiguration
     
     public string WhisperBaseURL { get; set; } = "http://localhost:5087";
 }
+
+/// <summary>
+/// Response model for LLM configuration
+/// </summary>
+public record LLMConfigurationResponse(
+    string ModelPath,
+    int ContextSize,
+    int GpuLayerCount,
+    int BatchSize,
+    int? Threads);
+
+/// <summary>
+/// Request model for updating LLM configuration
+/// </summary>
+public record LLMConfigurationUpdateRequest(
+    int ContextSize,
+    int GpuLayerCount,
+    int BatchSize,
+    int? Threads);

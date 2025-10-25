@@ -31,6 +31,23 @@ public interface ILLMApiService
         string prompt, 
         Action<string> onTokenReceived, 
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the current LLM configuration
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Current LLM configuration</returns>
+    Task<ApiResult<LLMConfigurationResponse>> GetConfigurationAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates the LLM configuration
+    /// </summary>
+    /// <param name="request">Configuration update request</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Updated LLM configuration</returns>
+    Task<ApiResult<LLMConfigurationResponse>> UpdateConfigurationAsync(
+        LLMConfigurationUpdateRequest request, 
+        CancellationToken cancellationToken = default);
 }
 
 /// <summary>

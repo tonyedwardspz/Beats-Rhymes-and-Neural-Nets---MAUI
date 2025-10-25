@@ -231,6 +231,115 @@ public class LLMApiService : ILLMApiService, IDisposable
         }
     }
 
+    /// <inheritdoc />
+    public async Task<ApiResult<LLMConfigurationResponse>> GetConfigurationAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogInformation("Requesting LLM configuration from LLMAPI");
+            
+            var response = await _httpClient.GetAsync("/api/llm/config", cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var configuration = await response.Content.ReadFromJsonAsync<LLMConfigurationResponse>(_jsonOptions, cancellationToken);
+                
+                if (configuration != null)
+                {
+                    _logger.LogInformation("Successfully retrieved LLM configuration");
+                    return ApiResult<LLMConfigurationResponse>.Success(configuration);
+                }
+                
+                return ApiResult<LLMConfigurationResponse>.Failure("Failed to deserialize configuration response");
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Failed to get LLM configuration. Status: {StatusCode}, Content: {Content}", 
+                response.StatusCode, errorContent);
+            
+            return ApiResult<LLMConfigurationResponse>.Failure(
+                $"LLMAPI request failed with status {response.StatusCode}", 
+                (int)response.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Network error while requesting LLM configuration");
+            return ApiResult<LLMConfigurationResponse>.Failure("Network error: Unable to connect to LLMAPI");
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "Request timeout while getting LLM configuration");
+            return ApiResult<LLMConfigurationResponse>.Failure("Request timeout");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while getting LLM configuration");
+            return ApiResult<LLMConfigurationResponse>.Failure($"Unexpected error: {ex.Message}");
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<ApiResult<LLMConfigurationResponse>> UpdateConfigurationAsync(
+        LLMConfigurationUpdateRequest request, 
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogInformation("Updating LLM configuration");
+            
+            var response = await _httpClient.PutAsJsonAsync("/api/llm/config", request, _jsonOptions, cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var configuration = await response.Content.ReadFromJsonAsync<LLMConfigurationResponse>(_jsonOptions, cancellationToken);
+                
+                if (configuration != null)
+                {
+                    _logger.LogInformation("Successfully updated LLM configuration");
+                    return ApiResult<LLMConfigurationResponse>.Success(configuration);
+                }
+                
+                return ApiResult<LLMConfigurationResponse>.Failure("Failed to deserialize configuration response");
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Failed to update LLM configuration. Status: {StatusCode}, Content: {Content}", 
+                response.StatusCode, errorContent);
+            
+            // Try to parse error response
+            var errorMessage = "Unknown error";
+            try
+            {
+                var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(errorContent, _jsonOptions);
+                if (errorResponse != null)
+                {
+                    errorMessage = errorResponse.Error;
+                }
+            }
+            catch
+            {
+                // Use default error message if parsing fails
+            }
+            
+            return ApiResult<LLMConfigurationResponse>.Failure(errorMessage, (int)response.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Network error while updating LLM configuration");
+            return ApiResult<LLMConfigurationResponse>.Failure("Network error: Unable to connect to LLMAPI");
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "Request timeout while updating LLM configuration");
+            return ApiResult<LLMConfigurationResponse>.Failure("Request timeout");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while updating LLM configuration");
+            return ApiResult<LLMConfigurationResponse>.Failure($"Unexpected error: {ex.Message}");
+        }
+    }
+
     public void Dispose()
     {
         _httpClient?.Dispose();
