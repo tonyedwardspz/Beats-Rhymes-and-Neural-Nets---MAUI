@@ -22,12 +22,12 @@
                     
                     <!-- API Configuration -->
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="LLMAPI Base URL:" 
+                        <Label Text="LLM API Base URL:" 
                                FontAttributes="Bold" 
                                TextColor="White" />
                         <Entry x:Name="ApiUrlEntry" 
                                Text="http://localhost:5000"
-                               Placeholder="Enter LLMAPI URL"
+                               Placeholder="Enter LLM API URL"
                                PlaceholderColor="Gray"
                                TextColor="White"
                                BackgroundColor="#1E1E1E" />

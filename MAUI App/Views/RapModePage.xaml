@@ -2,36 +2,95 @@
 <ContentPage x:Class="MAUI_App.Views.RapModePage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MAUI_App.ViewModels"
+             xmlns:models="clr-namespace:MAUI_App.Models"
+             x:DataType="vm:RapModeViewModel"
              Title="Rap Mode">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="20">
+    <Grid Margin="20" ColumnSpacing="20" RowSpacing="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left Column: Chunked Transcription -->
+        <Grid Grid.Column="0" VerticalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             
-            <!-- Page Title -->
-            <Label Text="🎤 Rap Mode" 
-                   FontSize="32" 
-                   FontAttributes="Bold" 
-                   HorizontalOptions="Center"
-                   TextColor="White" />
-            
-            <!-- Coming Soon Message -->
-            <Frame BackgroundColor="#2D2D30" Padding="20" CornerRadius="8">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="🚧 Coming Soon" 
-                           FontSize="24" 
-                           FontAttributes="Bold" 
-                           HorizontalOptions="Center"
-                           TextColor="White" />
+            <!-- Left Column Controls -->
+            <ScrollView Grid.Row="0" VerticalOptions="Start">
+                <StackLayout Spacing="15">
+                    <!-- Chunked Transcription Section -->
                     
-                    <Label Text="Rap Mode features are under development. Stay tuned for exciting new capabilities!" 
-                           FontSize="16" 
-                           TextColor="LightGray" 
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
-            </Frame>
-
-        </VerticalStackLayout>
-    </ScrollView>
+                    <Button Text="{Binding ChunkedButtonText}"
+                            Command="{Binding ToggleChunkedCommand}"
+                            BackgroundColor="{Binding ChunkedButtonColor}"
+                            FontSize="20"
+                            Margin="0,0,0,15"/>
+                </StackLayout>
+            </ScrollView>
+            
+            <!-- Left Column Results -->
+            <Grid Grid.Row="1" VerticalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand">
+                    <Label Text="{Binding TranscriptionResult}"
+                           FontSize="16"
+                           TextColor="Black"
+                           BackgroundColor="LightGray"
+                           Padding="15"
+                           VerticalOptions="FillAndExpand"
+                           LineBreakMode="WordWrap" />
+                </ScrollView>
+            </Grid>
+        </Grid>
+        
+        <!-- Right Column: Placeholder -->
+        <Grid Grid.Column="1" VerticalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <!-- Right Column Controls -->
+            <ScrollView Grid.Row="0" VerticalOptions="Start">
+                <StackLayout Spacing="15">
+                    <!-- Placeholder Section -->
+                    
+                    <Button Text="Bars Booster"
+                            Command="{Binding AutoCorrectCommand}"
+                            BackgroundColor="DarkBlue"
+                            TextColor="Azure"
+                            FontSize="20"
+                            Margin="0,0,0,15"/>
+                </StackLayout>
+            </ScrollView>
+            
+            <!-- Right Column Results -->
+            <Grid Grid.Row="1" VerticalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand">
+                    <Label Text="{Binding CorrectedLyrics}"
+                           FontSize="16"
+                           TextColor="Black"
+                           BackgroundColor="LightGray"
+                           Padding="15"
+                           VerticalOptions="FillAndExpand"
+                           LineBreakMode="WordWrap" />
+                </ScrollView>
+            </Grid>
+        </Grid>
+    </Grid>
 
 </ContentPage>
