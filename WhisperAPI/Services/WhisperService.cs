@@ -68,12 +68,16 @@ public class WhisperService : IWhisperService
             using var fileStream = File.OpenRead(processedFilePath);
 
             JsonArray results = new JsonArray();
+            var transcribedText = new List<string>();
             await foreach (var result in processor.ProcessAsync(fileStream))
             {
-                results.Add($"{result.Start}->{result.End}: {result.Text}");
+                var resultText = $"{result.Start}->{result.End}: {result.Text}";
+                results.Add(resultText);
+                transcribedText.Add(result.Text);
             }
             var transcriptionTime = stopwatch.ElapsedMilliseconds - transcriptionStart;
             metrics.TranscriptionTimeMs = transcriptionTime;
+            metrics.TranscribedText = string.Join(" ", transcribedText);
 
             // Clean up converted file if it's different from the original
             _audioFileHelper.CleanupConvertedFile(filePath, processedFilePath);

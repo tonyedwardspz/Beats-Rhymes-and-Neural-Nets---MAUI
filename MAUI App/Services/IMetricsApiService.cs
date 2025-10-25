@@ -12,4 +12,10 @@ public interface IMetricsApiService
     /// </summary>
     /// <returns>List of transcription metrics</returns>
     Task<ApiResult<List<TranscriptionMetrics>>> GetMetricsAsync();
+    
+    /// <summary>
+    /// Clears all transcription metrics from the API
+    /// </summary>
+    /// <returns>Success result</returns>
+    Task<ApiResult<bool>> ClearMetricsAsync();
 }

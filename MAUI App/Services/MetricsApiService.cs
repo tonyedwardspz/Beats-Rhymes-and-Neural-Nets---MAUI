@@ -71,6 +71,36 @@ public class MetricsApiService : IMetricsApiService, IDisposable
         }
     }
 
+    /// <inheritdoc />
+    public async Task<ApiResult<bool>> ClearMetricsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Clearing all transcription metrics");
+            
+            var response = await _httpClient.DeleteAsync("/api/whisper/metrics");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Successfully cleared all metrics");
+                return ApiResult<bool>.Success(true);
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Failed to clear metrics. Status: {StatusCode}, Content: {Content}", 
+                response.StatusCode, errorContent);
+            
+            return ApiResult<bool>.Failure(
+                $"Clear metrics API request failed with status {response.StatusCode}", 
+                (int)response.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception occurred while clearing metrics");
+            return ApiResult<bool>.Failure($"Exception: {ex.Message}");
+        }
+    }
+
     public void Dispose()
     {
         _httpClient?.Dispose();

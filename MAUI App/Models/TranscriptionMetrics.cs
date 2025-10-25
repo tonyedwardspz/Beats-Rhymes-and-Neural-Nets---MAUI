@@ -16,6 +16,7 @@ public class TranscriptionMetrics
     public long TranscriptionTimeMs { get; set; }
     public bool Success { get; set; }
     public string? ErrorMessage { get; set; }
+    public string TranscribedText { get; set; } = string.Empty;
 
     // Computed properties for display
     public string FileSizeDisplay => FormatFileSize(FileSizeBytes);
@@ -25,6 +26,8 @@ public class TranscriptionMetrics
     public string TranscriptionTimeDisplay => $"{TranscriptionTimeMs}ms";
     public string SuccessDisplay => Success ? "✅" : "❌";
     public string TimestampDisplay => Timestamp.ToString("MM/dd HH:mm:ss");
+    public string TranscribedTextDisplay => string.IsNullOrEmpty(TranscribedText) ? "N/A" : 
+        (TranscribedText.Length > 50 ? TranscribedText.Substring(0, 50) + "..." : TranscribedText);
 
     private static string FormatFileSize(long bytes)
     {

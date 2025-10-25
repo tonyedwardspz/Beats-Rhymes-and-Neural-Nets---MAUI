@@ -16,6 +16,7 @@ public class MetricsViewModel : INotifyPropertyChanged
     private bool _isLoading;
     private string _sortColumn = "Timestamp";
     private bool _sortAscending = false;
+    private string _selectedTranscribedText = "Select a row to view transcribed text";
 
     public MetricsViewModel(IMetricsApiService metricsApiService, ILogger<MetricsViewModel> logger)
     {
@@ -24,6 +25,8 @@ public class MetricsViewModel : INotifyPropertyChanged
         
         LoadMetricsCommand = new Command(async () => await LoadMetricsAsync());
         SortCommand = new Command<string>(SortByColumn);
+        ViewTextCommand = new Command<TranscriptionMetrics>(ViewTranscribedText);
+        ClearDataCommand = new Command(async () => await ClearDataAsync());
     }
 
     public ObservableCollection<TranscriptionMetrics> Metrics
@@ -68,6 +71,18 @@ public class MetricsViewModel : INotifyPropertyChanged
 
     public ICommand LoadMetricsCommand { get; }
     public ICommand SortCommand { get; }
+    public ICommand ViewTextCommand { get; }
+    public ICommand ClearDataCommand { get; }
+
+    public string SelectedTranscribedText
+    {
+        get => _selectedTranscribedText;
+        set
+        {
+            _selectedTranscribedText = value;
+            OnPropertyChanged();
+        }
+    }
 
     public async Task LoadMetricsAsync()
     {
@@ -176,10 +191,60 @@ public class MetricsViewModel : INotifyPropertyChanged
             Success = sessionMetrics.All(m => m.Success), // Success only if all succeeded
             ErrorMessage = sessionMetrics.Any(m => !string.IsNullOrEmpty(m.ErrorMessage)) 
                 ? string.Join("; ", sessionMetrics.Where(m => !string.IsNullOrEmpty(m.ErrorMessage)).Select(m => m.ErrorMessage))
-                : null
+                : null,
+            TranscribedText = string.Join(" ", sessionMetrics.Where(m => !string.IsNullOrEmpty(m.TranscribedText)).Select(m => m.TranscribedText)) // Combine all transcribed text
         };
         
         return aggregatedMetric;
+    }
+
+    private void ViewTranscribedText(TranscriptionMetrics metric)
+    {
+        if (metric == null)
+        {
+            SelectedTranscribedText = "No metric selected";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(metric.TranscribedText))
+        {
+            SelectedTranscribedText = "No transcribed text available for this entry";
+        }
+        else
+        {
+            SelectedTranscribedText = metric.TranscribedText;
+        }
+
+        _logger.LogInformation("Viewing transcribed text for {TranscriptionType} at {Timestamp}", 
+            metric.TranscriptionType, metric.Timestamp);
+    }
+
+    private async Task ClearDataAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Clearing all transcription metrics");
+            
+            var result = await _metricsApiService.ClearMetricsAsync();
+            
+            if (result.IsSuccess)
+            {
+                // Clear the local collection
+                Metrics.Clear();
+                SelectedTranscribedText = "All metrics cleared";
+                
+                _logger.LogInformation("Successfully cleared all metrics");
+            }
+            else
+            {
+                _logger.LogError("Failed to clear metrics: {Error}", result.ErrorMessage);
+                // You could show a user-friendly error message here
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception occurred while clearing metrics");
+        }
     }
 
     private void SortByColumn(string columnName)

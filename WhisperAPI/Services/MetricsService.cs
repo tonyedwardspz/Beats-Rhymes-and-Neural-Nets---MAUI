@@ -90,6 +90,27 @@ public class MetricsService : IMetricsService
         }
     }
 
+    public async Task ClearMetricsAsync()
+    {
+        await _fileLock.WaitAsync();
+        try
+        {
+            if (File.Exists(_metricsFilePath))
+            {
+                File.Delete(_metricsFilePath);
+                _logger.LogInformation("All transcription metrics cleared");
+            }
+            else
+            {
+                _logger.LogInformation("No metrics file found to clear");
+            }
+        }
+        finally
+        {
+            _fileLock.Release();
+        }
+    }
+
     private async Task<MetricsContainer> LoadMetricsAsync()
     {
         if (!File.Exists(_metricsFilePath))

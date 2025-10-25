@@ -11,6 +11,7 @@ public static class TranscriptionModule
 
         group.MapGet("modelDetails", GetModelDetails);
         group.MapGet("metrics", GetMetrics);
+        group.MapDelete("metrics", ClearMetrics);
         group.MapPost("transcribe", TranscribeFilePath);
         group.MapPost("transcribe-wav", TranscribeFile).DisableAntiforgery();
     }
@@ -30,6 +31,19 @@ public static class TranscriptionModule
         catch (Exception ex)
         {
             return Results.Problem($"Failed to get metrics: {ex.Message}");
+        }
+    }
+
+    private static async Task<IResult> ClearMetrics(IMetricsService metricsService)
+    {
+        try
+        {
+            await metricsService.ClearMetricsAsync();
+            return Results.Ok(new { message = "All metrics cleared successfully" });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Failed to clear metrics: {ex.Message}");
         }
     }
 

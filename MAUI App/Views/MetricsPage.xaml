@@ -10,13 +10,15 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="4*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Header with refresh button -->
+        <!-- Header with refresh and clear buttons -->
         <Grid Grid.Row="0" Padding="16,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             
@@ -29,6 +31,14 @@
             <Button Grid.Column="1" 
                     Text="Refresh" 
                     Command="{Binding LoadMetricsCommand}"
+                    IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                    Margin="0,0,8,0" />
+            
+            <Button Grid.Column="2" 
+                    Text="Clear Data" 
+                    Command="{Binding ClearDataCommand}"
+                    BackgroundColor="#FF6B6B"
+                    TextColor="White"
                     IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}" />
         </Grid>
 
@@ -42,7 +52,8 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -132,6 +143,13 @@
                                 CommandParameter="Success"
                                 FontSize="12" 
                                 FontAttributes="Bold" />
+                        
+                        <Button Grid.Column="9" 
+                                Text="View" 
+                                BackgroundColor="Transparent" 
+                                BorderColor="Transparent"
+                                FontSize="12" 
+                                FontAttributes="Bold" />
                     </Grid>
                 </CollectionView.Header>
 
@@ -141,7 +159,8 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
@@ -204,10 +223,41 @@
                                    FontSize="20" 
                                    VerticalOptions="Center" 
                                    HorizontalOptions="Center" />
+                            
+                            <Button Grid.Column="9" 
+                                    Text="👁️" 
+                                    FontSize="16" 
+                                    BackgroundColor="Transparent" 
+                                    BorderColor="Transparent"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MetricsViewModel}}, Path=ViewTextCommand}"
+                                    CommandParameter="{Binding .}"
+                                    HorizontalOptions="Center" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </ScrollView>
+
+        <!-- Detail view for transcribed text -->
+        <Grid Grid.Row="2" BackgroundColor="#F8F9FA" Padding="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Label Grid.Row="0" 
+                   Text="Transcribed Text" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="DarkSlateGrey" 
+                   Margin="0,0,0,8" />
+            
+            <ScrollView Grid.Row="1">
+                <Label Text="{Binding SelectedTranscribedText}" 
+                       FontSize="16" 
+                       TextColor="Black"
+                       LineBreakMode="WordWrap" />
+            </ScrollView>
+        </Grid>
     </Grid>
 </ContentPage>

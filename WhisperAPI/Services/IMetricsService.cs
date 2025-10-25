@@ -22,4 +22,10 @@ public interface IMetricsService
     /// </summary>
     /// <param name="filePath">Optional file path, defaults to ./Metrics/transcription-metrics.json</param>
     Task ExportMetricsAsync(string? filePath = null);
+    
+    /// <summary>
+    /// Clears all transcription metrics
+    /// </summary>
+    /// <returns>Task representing the async operation</returns>
+    Task ClearMetricsAsync();
 }
