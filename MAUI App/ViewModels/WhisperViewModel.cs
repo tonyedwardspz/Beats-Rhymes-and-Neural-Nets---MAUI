@@ -4,6 +4,7 @@ using Microsoft.Maui.Storage;
 using Plugin.Maui.Audio;
 using System.ComponentModel;
 using Microsoft.Maui.Devices;
+using Microsoft.Maui.Graphics;
 
 namespace MAUI_App.ViewModels;
 
@@ -66,6 +67,18 @@ public class WhisperPageViewModel : BaseViewModel
 
 	private string selectedFilePath = string.Empty;
 
+	public bool IsChunkedRecording => isChunkedRecording;
+
+	// Toggle button properties
+	public string RecordingButtonText => IsRecording ? "Stop Recording" : "Start Recording";
+	public Color RecordingButtonColor => IsRecording ? Colors.Red : Colors.Green;
+	
+	public string PlaybackButtonText => IsPlaying ? "Stop Playback" : "Start Playback";
+	public Color PlaybackButtonColor => IsPlaying ? Colors.Red : Colors.Orange;
+	
+	public string ChunkedButtonText => IsChunkedRecording ? "Stop Chunked" : "Start Chunked";
+	public Color ChunkedButtonColor => IsChunkedRecording ? Colors.Red : Colors.Orange;
+
 	bool isPlaying = false;
 	public bool IsPlaying
 	{
@@ -73,6 +86,8 @@ public class WhisperPageViewModel : BaseViewModel
 		set
 		{
 			isPlaying = value;
+			NotifyPropertyChanged(nameof(PlaybackButtonText));
+			NotifyPropertyChanged(nameof(PlaybackButtonColor));
 			PlayCommand.ChangeCanExecute();
 			StopPlayCommand.ChangeCanExecute();
 		}
@@ -87,6 +102,9 @@ public class WhisperPageViewModel : BaseViewModel
 	public Command StopChunkedCommand { get; }
 	public Command SelectFileCommand { get; }
 	public Command TranscribeFileCommand { get; }
+	public Command ToggleRecordingCommand { get; }
+	public Command TogglePlaybackCommand { get; }
+	public Command ToggleChunkedCommand { get; }
 
 	public WhisperPageViewModel(
 		IAudioManager audioManager,
@@ -102,6 +120,9 @@ public class WhisperPageViewModel : BaseViewModel
 		StopChunkedCommand = new Command(StopChunkedTranscription, () => isChunkedRecording);
 		SelectFileCommand = new Command(SelectFile);
 		TranscribeFileCommand = new Command(TranscribeFile, () => HasSelectedFile && !IsProcessing);
+		ToggleRecordingCommand = new Command(ToggleRecording);
+		TogglePlaybackCommand = new Command(TogglePlayback);
+		ToggleChunkedCommand = new Command(ToggleChunked);
 
 
 		this.audioManager = audioManager;
@@ -139,6 +160,8 @@ public class WhisperPageViewModel : BaseViewModel
 		}
 		
 		NotifyPropertyChanged(nameof(IsRecording));
+		NotifyPropertyChanged(nameof(RecordingButtonText));
+		NotifyPropertyChanged(nameof(RecordingButtonColor));
 		StartCommand.ChangeCanExecute();
 		StopCommand.ChangeCanExecute();
 	}
@@ -148,6 +171,8 @@ public class WhisperPageViewModel : BaseViewModel
 		audioSource = await audioRecorder.StopAsync();
 		
 		NotifyPropertyChanged(nameof(IsRecording));
+		NotifyPropertyChanged(nameof(RecordingButtonText));
+		NotifyPropertyChanged(nameof(RecordingButtonColor));
 		StartCommand.ChangeCanExecute();
 		StopCommand.ChangeCanExecute();
 	}
@@ -234,12 +259,18 @@ public class WhisperPageViewModel : BaseViewModel
 			// Update command states
 			StartChunkedCommand.ChangeCanExecute();
 			StopChunkedCommand.ChangeCanExecute();
+			NotifyPropertyChanged(nameof(IsChunkedRecording));
+			NotifyPropertyChanged(nameof(ChunkedButtonText));
+			NotifyPropertyChanged(nameof(ChunkedButtonColor));
 		}
 	}
 
 	void StopChunkedTranscription()
 	{
 		isChunkedRecording = false;
+		NotifyPropertyChanged(nameof(IsChunkedRecording));
+		NotifyPropertyChanged(nameof(ChunkedButtonText));
+		NotifyPropertyChanged(nameof(ChunkedButtonColor));
 		chunkedTimer?.Dispose();
 		chunkedTimer = null;
 		// Don't reset session ID here - let the final chunk use it
@@ -418,6 +449,42 @@ public class WhisperPageViewModel : BaseViewModel
 		{
 			IsProcessing = false;
 			TranscribeFileCommand.ChangeCanExecute();
+		}
+	}
+
+	void ToggleRecording()
+	{
+		if (IsRecording)
+		{
+			Stop();
+		}
+		else
+		{
+			Start();
+		}
+	}
+
+	void TogglePlayback()
+	{
+		if (IsPlaying)
+		{
+			StopPlay();
+		}
+		else
+		{
+			PlayAudio();
+		}
+	}
+
+	void ToggleChunked()
+	{
+		if (IsChunkedRecording)
+		{
+			StopChunkedTranscription();
+		}
+		else
+		{
+			StartChunkedTranscription();
 		}
 	}
 }

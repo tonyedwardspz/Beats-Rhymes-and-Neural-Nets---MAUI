@@ -6,72 +6,80 @@
              x:DataType="vm:WhisperPageViewModel"
              x:Class="MAUI_App.Views.WhisperPage">
     <ContentPage.Content>
-        
-            <Grid Margin="20" RowSpacing="10"
-                  VerticalOptions="Center" RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*,*,200">
-                    <Label Text="This is the recording page" Grid.Row="1" />
+        <Grid Margin="20" ColumnSpacing="20" RowSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+            
+            <!-- Left Column: Controls -->
+            <ScrollView Grid.Column="0" VerticalOptions="FillAndExpand">
+                <StackLayout Spacing="15">
+                    <!-- Recording Section -->
+                    <Label Text="Recording" FontSize="18" FontAttributes="Bold" />
                     
-                    <Button Grid.Row="2"
-                            Text="Start Recording"
-                            Command="{Binding StartCommand}" />
+                    <Button Text="{Binding RecordingButtonText}"
+                            Command="{Binding ToggleRecordingCommand}"
+                            BackgroundColor="{Binding RecordingButtonColor}" />
                     
-                    <Button Grid.Row="3"
-                            Text="Stop Recording"
-                            Command="{Binding StopCommand}" />
+                    <Button Text="Transcribe"
+                            Command="{Binding ProcessCommand}"
+                            BackgroundColor="Blue" />
                     
-                    <Button Grid.Row="4"
-                            Text="Transcribe"
-                            Command="{Binding ProcessCommand}" />
-
-                    <Button Grid.Row="5"
-					Text="Play Recording"
-					Command="{Binding PlayCommand}" />
-
-                    <Button Grid.Row="6"
-					Text="Stop Play Recording"
-					Command="{Binding StopPlayCommand}" />
-
-                    <Button Grid.Row="7"
-                            Text="Start Chunked Transcription"
-                            Command="{Binding StartChunkedCommand}"
-                            BackgroundColor="Orange" />
-
-                    <Button Grid.Row="8"
-                            Text="Stop Chunked Transcription"
-                            Command="{Binding StopChunkedCommand}"
-                            BackgroundColor="Red" />
-
+                    <Button Text="{Binding PlaybackButtonText}"
+                            Command="{Binding TogglePlaybackCommand}"
+                            BackgroundColor="{Binding PlaybackButtonColor}" />
+                    
+                    <!-- Chunked Transcription Section -->
+                    <Label Text="Chunked Transcription" FontSize="18" FontAttributes="Bold" Margin="0,20,0,0" />
+                    
+                    <Button Text="{Binding ChunkedButtonText}"
+                            Command="{Binding ToggleChunkedCommand}"
+                            BackgroundColor="{Binding ChunkedButtonColor}" />
+                    
                     <!-- File Upload Section -->
-                    <Label Text="File Upload" Grid.Row="9" FontSize="16" FontAttributes="Bold" Margin="0,10,0,5" />
+                    <Label Text="File Upload" FontSize="18" FontAttributes="Bold" Margin="0,20,0,0" />
                     
-                    <Button Grid.Row="10"
-                            Text="Select Audio File"
+                    <Button Text="Select Audio File"
                             Command="{Binding SelectFileCommand}"
                             BackgroundColor="LightBlue" />
                     
                     <Label Text="{Binding SelectedFileName}" 
-                           Grid.Row="11" 
                            FontSize="12" 
                            TextColor="Gray" 
-                           HorizontalOptions="Center" />
+                           HorizontalOptions="Center"
+                           LineBreakMode="TailTruncation" />
                     
-                    <Button Grid.Row="12"
-                            Text="Transcribe Selected File"
+                    <Button Text="Transcribe Selected File"
                             Command="{Binding TranscribeFileCommand}"
                             BackgroundColor="Green"
                             IsEnabled="{Binding HasSelectedFile}" />
+                </StackLayout>
+            </ScrollView>
+            
+            <!-- Right Column: Results -->
+            <Grid Grid.Column="1" VerticalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
                 
-                    
-                    
-                    
-                        <Label Text="{Binding TranscriptionResult}"
-                               Grid.Row="13"
-                               FontSize="14"
-                               TextColor="Black"
-                               BackgroundColor="LightGray"
-                               Padding="10"
-                               VerticalOptions="Start" />
+                <Label Text="Transcription Results" 
+                       Grid.Row="0"
+                       FontSize="18" 
+                       FontAttributes="Bold" 
+                       Margin="0,0,0,10" />
+                
+                <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand">
+                    <Label Text="{Binding TranscriptionResult}"
+                           FontSize="16"
+                           TextColor="Black"
+                           BackgroundColor="LightGray"
+                           Padding="15"
+                           VerticalOptions="FillAndExpand"
+                           LineBreakMode="WordWrap" />
+                </ScrollView>
             </Grid>
-        
+        </Grid>
     </ContentPage.Content>
 </ContentPage>
