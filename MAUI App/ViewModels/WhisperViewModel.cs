@@ -252,7 +252,16 @@ public class WhisperPageViewModel : BaseViewModel
 			if (result.IsSuccess && result.Data != null)
 			{
 				// Join all transcription results
-				TranscriptionResult = string.Join("\n", result.Data.Results);
+				var str = "\n";
+				foreach(string resultString in result.Data.Results)
+				{
+					var transcription = CleanTranscriptionText(resultString);
+					if (transcription != "[BLANK_AUDIO]")
+					{
+						str += $"{transcription}\n";
+					}
+				}
+				TranscriptionResult = str;
 			}
 			else
 			{
@@ -324,8 +333,6 @@ public class WhisperPageViewModel : BaseViewModel
 		// Update command states
 		StartChunkedCommand.ChangeCanExecute();
 		StopChunkedCommand.ChangeCanExecute();
-		
-		TranscriptionResult += "\n--- Chunked transcription stopped ---";
 	}
 
 	async void ProcessChunk(object? state)
@@ -365,14 +372,12 @@ public class WhisperPageViewModel : BaseViewModel
 				{
 					if (result.IsSuccess && result.Data != null && result.Data.Results.Length > 0)
 					{
-						var timeRange = $"{chunkCounter * 2} - {(chunkCounter + 1) * 2}s";
-						var transcription = string.Join(" ", result.Data.Results);
-						TranscriptionResult += $"{timeRange} --> {transcription}\n";
+						var transcription = CleanTranscriptionText(string.Join(" ", result.Data.Results));
+						TranscriptionResult += $"{transcription}\n";
 					}
 					else
 					{
-						var timeRange = $"{chunkCounter * 2} - {(chunkCounter + 1) * 2}s";
-						TranscriptionResult += $"{timeRange} --> [No speech detected]\n";
+						TranscriptionResult += $"[No speech detected]\n";
 					}
 				});
 			}
@@ -480,7 +485,16 @@ public class WhisperPageViewModel : BaseViewModel
 			if (result.IsSuccess && result.Data != null)
 			{
 				// Join all transcription results
-				TranscriptionResult = string.Join("\n", result.Data.Results);
+				var str = "\n";
+				foreach(string resultString in result.Data.Results)
+				{
+					var transcription = CleanTranscriptionText(resultString);
+					if (transcription != "[BLANK_AUDIO]")
+					{
+						str += $"{transcription}\n";
+					}
+				}
+				TranscriptionResult = str;
 			}
 			else
 			{
@@ -612,5 +626,21 @@ public class WhisperPageViewModel : BaseViewModel
 			await AppShell.Current.DisplayAlert("Error", 
 				$"Unexpected error switching model: {ex.Message}", "OK");
 		}
+	}
+
+	private string CleanTranscriptionText(string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+			return text;
+
+		// Use regex to remove timestamps like "00:00:00->00:00:02: " or "00:00:01.400000->00:00:02.500000: " from the beginning of the text
+		var timestampPattern = @"^\d{2}:\d{2}:\d{2}(?:\.\d+)?->\d{2}:\d{2}:\d{2}(?:\.\d+)?:\s*";
+		var cleanedText = System.Text.RegularExpressions.Regex.Replace(text, timestampPattern, "");
+		if (cleanedText.Length > 2 && cleanedText.StartsWith('-'))
+		{
+			cleanedText = cleanedText.Substring(2);
+		}
+		
+		return cleanedText.Trim();
 	}
 }

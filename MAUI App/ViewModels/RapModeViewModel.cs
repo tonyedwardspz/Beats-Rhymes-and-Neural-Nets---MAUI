@@ -41,6 +41,7 @@ public class RapModeViewModel : BaseViewModel
         {
             transcriptionResult = value;
             NotifyPropertyChanged();
+            AutoCorrectCommand.ChangeCanExecute();
         }
     }
 
@@ -132,8 +133,6 @@ public class RapModeViewModel : BaseViewModel
         // Update command states
         StartChunkedCommand.ChangeCanExecute();
         StopChunkedCommand.ChangeCanExecute();
-        
-        TranscriptionResult += "\n--- Chunked transcription stopped ---";
     }
 
     async void ProcessChunk(object? state)
@@ -160,27 +159,27 @@ public class RapModeViewModel : BaseViewModel
 
             if (chunkAudioSource != null)
             {
-                // Process the chunk
                 using var audioStream = chunkAudioSource.GetAudioStream();
                 if (audioStream.CanSeek)
                 {
                     audioStream.Position = 0;
                 }
-
+                
                 var result = await whisperApiService.TranscribeWavAsync(audioStream, $"chunk_{chunkCounter}.wav", "Streaming", chunkedSessionId);
                 
                 await dispatcher.DispatchAsync(() =>
                 {
                     if (result.IsSuccess && result.Data != null && result.Data.Results.Length > 0)
                     {
-                        var timeRange = $"{chunkCounter * 2} - {(chunkCounter + 1) * 2}s";
-                        var transcription = string.Join(" ", result.Data.Results);
-                        TranscriptionResult += $"{timeRange} --> {transcription}\n";
+                        var transcription = CleanTranscriptionText(string.Join(" ", result.Data.Results));
+                        if (transcription != "[BLANK_AUDIO]")
+                        {
+                            TranscriptionResult += $"{transcription}\n";
+                        }
                     }
                     else
                     {
-                        var timeRange = $"{chunkCounter * 2} - {(chunkCounter + 1) * 2}s";
-                        TranscriptionResult += $"{timeRange} --> [No speech detected]\n";
+                        TranscriptionResult += $"[No speech detected]\n";
                     }
                 });
             }
@@ -195,8 +194,6 @@ public class RapModeViewModel : BaseViewModel
         finally
         {
             chunkCounter++;
-            
-            // Reset session ID after the final chunk has been processed
             if (!isChunkedRecording)
             {
                 chunkedSessionId = null;
@@ -229,13 +226,8 @@ public class RapModeViewModel : BaseViewModel
 
         try
         {
-            // Read the autocorrect prompt from the file
             var promptText = await ReadAutocorrectPromptAsync();
-            
-            // Combine the prompt with the transcription
             var fullPrompt = $"{promptText}\n\n{TranscriptionResult}";
-
-            // Send to LLM for correction
             var result = await llmApiService.GenerateResponseAsync(fullPrompt);
             
             if (result.IsSuccess && result.Data != null)
@@ -267,9 +259,20 @@ public class RapModeViewModel : BaseViewModel
         }
         catch
         {
-            // Fallback prompt if file can't be read
             return "Act as rap transcription editor, correcting mistakes in rap songs that have been transcribed by software. You have a lifetime of experience in writing songs for the best, chart topping artists.\n\nThere are likely to be subtle errors where the model has misheard what has been said. Use the context around potential mistakes to correct them to what they should be.\n\nHere are the transcribed lyrics:\n";
         }
+    }
+
+    private string CleanTranscriptionText(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return text;
+
+        // Use regex to remove timestamps like "00:00:00->00:00:02: " or "00:00:01.400000->00:00:02.500000: " from the beginning of the text
+        var timestampPattern = @"^\d{2}:\d{2}:\d{2}(?:\.\d+)?->\d{2}:\d{2}:\d{2}(?:\.\d+)?:\s*";
+        var cleanedText = System.Text.RegularExpressions.Regex.Replace(text, timestampPattern, "");
+        
+        return cleanedText.Trim();
     }
 
 }

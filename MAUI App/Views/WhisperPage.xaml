@@ -69,7 +69,6 @@
                             TextColor="Azure"/>
                     
                     <Picker ItemsSource="{Binding AvailableModels}"
-                    x:DataType="models:WhisperModel"
                             SelectedItem="{Binding SelectedModel}"
                             ItemDisplayBinding="{Binding Name}"
                             Title="Select Model" />

@@ -20,10 +20,10 @@ public class TranscriptionMetrics
 
     // Computed properties for display
     public string FileSizeDisplay => FormatFileSize(FileSizeBytes);
-    public string DurationDisplay => AudioDurationSeconds?.ToString("F2") + "s" ?? "N/A";
+    public string DurationDisplay => FormatDuration(AudioDurationSeconds);
     public string TotalTimeDisplay => $"{TotalTimeMs}ms";
     public string PreprocessingTimeDisplay => $"{PreprocessingTimeMs}ms";
-    public string TranscriptionTimeDisplay => $"{TranscriptionTimeMs}ms";
+    public string TranscriptionTimeDisplay => $"{TranscriptionTimeMs / 1000.0:F2}s";
     public string SuccessDisplay => Success ? "✅" : "❌";
     public string TimestampDisplay => Timestamp.ToString("MM/dd HH:mm:ss");
     public string TranscribedTextDisplay => string.IsNullOrEmpty(TranscribedText) ? "N/A" : 
@@ -34,5 +34,16 @@ public class TranscriptionMetrics
         if (bytes < 1024) return $"{bytes} B";
         if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F1} KB";
         return $"{bytes / (1024.0 * 1024.0):F1} MB";
+    }
+
+    private static string FormatDuration(double? seconds)
+    {
+        if (seconds == null) return "N/A";
+        
+        var totalSeconds = (int)seconds.Value;
+        var minutes = totalSeconds / 60;
+        var remainingSeconds = totalSeconds % 60;
+        
+        return $"{minutes}:{remainingSeconds:D2}";
     }
 }
