@@ -113,7 +113,7 @@ public class WhisperPageViewModel : BaseViewModel
 	public string PlaybackButtonText => IsPlaying ? "Stop Playback" : "Start Playback";
 	public Color PlaybackButtonColor => IsPlaying ? Colors.Red : Colors.Orange;
 	
-	public string ChunkedButtonText => IsChunkedRecording ? "Stop Chunked" : "Start Chunked";
+	public string ChunkedButtonText => IsChunkedRecording ? "Stop Streaming Transcription" : "Start Streaming Transcription";
 	public Color ChunkedButtonColor => IsChunkedRecording ? Colors.Red : Colors.Orange;
 
 	bool isPlaying = false;

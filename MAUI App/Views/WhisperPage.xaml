@@ -49,7 +49,7 @@
                             BackgroundColor="LightBlue" />
                     
                     <Label Text="{Binding SelectedFileName}" 
-                           FontSize="12" 
+                           FontSize="16" 
                            TextColor="Azure"
                            HorizontalOptions="Center"
                            LineBreakMode="TailTruncation" />
@@ -63,18 +63,13 @@
                     <!-- Model Selection Section -->
                     <Label Text="Model Selection" FontSize="18" FontAttributes="Bold" Margin="0,20,0,0" />
                     
-                    <Button Text="Load Models"
-                            Command="{Binding LoadModelsCommand}"
-                            BackgroundColor="Purple"
-                            TextColor="Azure"/>
-                    
                     <Picker ItemsSource="{Binding AvailableModels}"
                             SelectedItem="{Binding SelectedModel}"
                             ItemDisplayBinding="{Binding Name}"
                             Title="Select Model" />
                     
                     <Label Text="{Binding SelectedModel.Name, StringFormat='Current: {0}'}" 
-                           FontSize="12" 
+                           FontSize="16" 
                            TextColor="Azure" 
                            HorizontalOptions="Center" 
                            />
@@ -82,6 +77,12 @@
                     <Button Text="Switch Model"
                             Command="{Binding SwitchModelCommand}"
                             BackgroundColor="Orange" />
+                    
+                                        
+                    <Button Text="Reload Available Models"
+                            Command="{Binding LoadModelsCommand}"
+                            BackgroundColor="Purple"
+                            TextColor="Azure"/>
                 </StackLayout>
             </ScrollView>
             
@@ -100,7 +101,7 @@
                 
                 <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand">
                     <Label Text="{Binding TranscriptionResult}"
-                           FontSize="16"
+                           FontSize="24"
                            TextColor="Black"
                            BackgroundColor="LightGray"
                            Padding="15"
