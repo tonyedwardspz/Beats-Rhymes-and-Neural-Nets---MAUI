@@ -9,6 +9,7 @@ public class TranscriptionMetrics
     public string ModelName { get; set; } = string.Empty;
     public string TranscriptionType { get; set; } = string.Empty;
     public string SessionId { get; set; } = string.Empty; // For grouping chunked transcriptions
+    public int? ChunkIndex { get; set; } // For tracking order in chunked transcriptions
     public long FileSizeBytes { get; set; }
     public double? AudioDurationSeconds { get; set; }
     public long TotalTimeMs { get; set; }

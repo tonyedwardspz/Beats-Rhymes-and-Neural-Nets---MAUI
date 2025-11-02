@@ -22,6 +22,7 @@ public interface IWhisperApiService
     /// <param name="fileName">The name of the audio file</param>
     /// <param name="transcriptionType">The type of transcription (e.g., "Streaming", "File Upload")</param>
     /// <param name="sessionId">Session ID for grouping related transcriptions</param>
+    /// <param name="chunkIndex">Index of the chunk for tracking order in chunked transcriptions</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Transcription results</returns>
     Task<ApiResult<TranscriptionResponse>> TranscribeWavAsync(
@@ -29,6 +30,7 @@ public interface IWhisperApiService
         string fileName, 
         string? transcriptionType = null,
         string? sessionId = null,
+        int? chunkIndex = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

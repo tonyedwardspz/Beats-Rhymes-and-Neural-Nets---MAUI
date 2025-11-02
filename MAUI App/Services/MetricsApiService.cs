@@ -59,6 +59,7 @@ public class MetricsApiService : IMetricsApiService, IDisposable
                             ModelName = m.ModelName,
                             TranscriptionType = m.TranscriptionType,
                             SessionId = m.SessionId,
+                            ChunkIndex = m.ChunkIndex,
                             FileSizeBytes = m.FileSizeBytes,
                             AudioDurationSeconds = m.AudioDurationSeconds,
                             TotalTimeMs = m.TotalTimeMs,

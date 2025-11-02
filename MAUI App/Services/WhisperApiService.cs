@@ -76,6 +76,7 @@ public class WhisperApiService : IWhisperApiService, IDisposable
         string fileName, 
         string? transcriptionType = null,
         string? sessionId = null,
+        int? chunkIndex = null,
         CancellationToken cancellationToken = default)
     {
         if (audioStream == null || audioStream.Length == 0)
@@ -90,8 +91,8 @@ public class WhisperApiService : IWhisperApiService, IDisposable
 
         try
         {
-            _logger.LogInformation("Transcribing WAV file: {FileName} (size: {Size} bytes)", 
-                fileName, audioStream.Length);
+            _logger.LogInformation("Transcribing WAV file: {FileName} (size: {Size} bytes, chunkIndex: {ChunkIndex})", 
+                fileName, audioStream.Length, chunkIndex);
             
             // Create multipart form data
             using var formData = new MultipartFormDataContent();
@@ -112,6 +113,12 @@ public class WhisperApiService : IWhisperApiService, IDisposable
             if (!string.IsNullOrEmpty(sessionId))
             {
                 formData.Add(new StringContent(sessionId), "SessionId");
+            }
+            
+            // Add chunk index if provided
+            if (chunkIndex.HasValue)
+            {
+                formData.Add(new StringContent(chunkIndex.Value.ToString()), "ChunkIndex");
             }
             
             var response = await _httpClient.PostAsync("/api/whisper/transcribe-wav", formData, cancellationToken);

@@ -4,7 +4,7 @@ namespace WhisperAPI.Services;
 
 public interface IWhisperService
 {
-    Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null);
+    Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null, int? chunkIndex = null);
     Task<JsonArray> TranscribeFileAsync(IWhisperService whisperService, TranscribeWavRequest request);
     Task<string> GetModelDetailsAsync();
     Task<List<WhisperModel>> GetAvailableModelsAsync();
@@ -41,7 +41,7 @@ public class WhisperService : IWhisperService
         _logger.LogInformation("WhisperFactory initialized successfully");
     }
 
-    public async Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null)
+    public async Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null, int? chunkIndex = null)
     {
         var startTime = DateTime.UtcNow;
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -52,6 +52,7 @@ public class WhisperService : IWhisperService
             ModelName = Path.GetFileNameWithoutExtension(_modelFileName),
             TranscriptionType = transcriptionType ?? "File Upload",
             SessionId = sessionId ?? Guid.NewGuid().ToString(),
+            ChunkIndex = chunkIndex,
             FileSizeBytes = new FileInfo(filePath).Length
         };
 
@@ -159,7 +160,7 @@ public class WhisperService : IWhisperService
                 }
 
                 // Use the same transcription logic as TranscribeFilePathAsync which includes audio conversion
-                var results = await whisperService.TranscribeFilePathAsync(tempFilePath, request.TranscriptionType, request.SessionId);
+                var results = await whisperService.TranscribeFilePathAsync(tempFilePath, request.TranscriptionType, request.SessionId, request.ChunkIndex);
                 return results;
             }
             finally

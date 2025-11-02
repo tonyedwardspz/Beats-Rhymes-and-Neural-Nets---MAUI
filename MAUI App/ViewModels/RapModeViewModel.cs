@@ -21,6 +21,8 @@ public class RapModeViewModel : BaseViewModel
     private bool isChunkedRecording = false;
     private int chunkCounter = 0;
     private string? chunkedSessionId = null;
+    private Dictionary<int, string> chunkResults = new Dictionary<int, string>(); // Store results by chunk index
+    private int nextDisplayIndex = 0; // Track which chunk index should be displayed next
 
     private string _title = "Rap Mode";
     public string Title
@@ -105,6 +107,8 @@ public class RapModeViewModel : BaseViewModel
             // Clear previous results
             TranscriptionResult = "Starting chunked transcription...\n";
             chunkCounter = 0;
+            nextDisplayIndex = 0;
+            chunkResults.Clear();
             isChunkedRecording = true;
             chunkedSessionId = Guid.NewGuid().ToString(); // Generate session ID for this chunked session
             
@@ -139,6 +143,10 @@ public class RapModeViewModel : BaseViewModel
     {
         if (!isChunkedRecording) return;
 
+        // Capture the current chunk index before incrementing
+        int currentChunkIndex = chunkCounter;
+        chunkCounter++;
+
         try
         {
             // Create a new recorder for this chunk
@@ -165,22 +173,33 @@ public class RapModeViewModel : BaseViewModel
                     audioStream.Position = 0;
                 }
                 
-                var result = await whisperApiService.TranscribeWavAsync(audioStream, $"chunk_{chunkCounter}.wav", "Streaming", chunkedSessionId);
+                var result = await whisperApiService.TranscribeWavAsync(audioStream, $"chunk_{currentChunkIndex}.wav", "Streaming", chunkedSessionId, currentChunkIndex);
                 
                 await dispatcher.DispatchAsync(() =>
                 {
+                    string transcriptionText;
                     if (result.IsSuccess && result.Data != null && result.Data.Results.Length > 0)
                     {
                         var transcription = CleanTranscriptionText(string.Join(" ", result.Data.Results));
                         if (transcription != "[BLANK_AUDIO]")
                         {
-                            TranscriptionResult += $"{transcription}\n";
+                            transcriptionText = transcription;
+                        }
+                        else
+                        {
+                            transcriptionText = "[No speech detected]";
                         }
                     }
                     else
                     {
-                        TranscriptionResult += $"[No speech detected]\n";
+                        transcriptionText = "[No speech detected]";
                     }
+                    
+                    // Store the result by chunk index
+                    chunkResults[currentChunkIndex] = transcriptionText;
+                    
+                    // Display chunks in order
+                    UpdateTranscriptionDisplay();
                 });
             }
         }
@@ -188,17 +207,34 @@ public class RapModeViewModel : BaseViewModel
         {
             await dispatcher.DispatchAsync(() =>
             {
-                TranscriptionResult += $"Error in chunk {chunkCounter}: {ex.Message}\n";
+                // Store error in the results dictionary
+                chunkResults[currentChunkIndex] = $"Error in chunk {currentChunkIndex}: {ex.Message}";
+                UpdateTranscriptionDisplay();
             });
         }
         finally
         {
-            chunkCounter++;
             if (!isChunkedRecording)
             {
                 chunkedSessionId = null;
             }
         }
+    }
+
+    private void UpdateTranscriptionDisplay()
+    {
+        // Build transcription result by displaying chunks in order
+        var resultBuilder = new System.Text.StringBuilder();
+        
+        // Display chunks in order, starting from nextDisplayIndex
+        while (chunkResults.ContainsKey(nextDisplayIndex))
+        {
+            resultBuilder.AppendLine(chunkResults[nextDisplayIndex]);
+            nextDisplayIndex++;
+        }
+        
+        // Update the transcription result
+        TranscriptionResult = resultBuilder.ToString();
     }
 
     void ToggleChunked()
