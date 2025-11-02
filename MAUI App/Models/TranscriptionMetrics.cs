@@ -1,23 +1,13 @@
+using SharedLibrary.Models;
+
 namespace MAUI_App.Models;
 
 /// <summary>
-/// Model for transcription performance metrics
+/// MAUI-specific display extension for TranscriptionMetrics
+/// Uses inheritance to add display properties while maintaining compatibility with SharedLibrary model
 /// </summary>
-public class TranscriptionMetrics
+public class TranscriptionMetrics : SharedLibrary.Models.TranscriptionMetrics
 {
-    public DateTime Timestamp { get; set; }
-    public string ModelName { get; set; } = string.Empty;
-    public string TranscriptionType { get; set; } = string.Empty;
-    public string SessionId { get; set; } = string.Empty;
-    public long FileSizeBytes { get; set; }
-    public double? AudioDurationSeconds { get; set; }
-    public long TotalTimeMs { get; set; }
-    public long PreprocessingTimeMs { get; set; }
-    public long TranscriptionTimeMs { get; set; }
-    public bool Success { get; set; }
-    public string? ErrorMessage { get; set; }
-    public string TranscribedText { get; set; } = string.Empty;
-
     // Computed properties for display
     public string FileSizeDisplay => FormatFileSize(FileSizeBytes);
     public string DurationDisplay => FormatDuration(AudioDurationSeconds);
@@ -47,3 +37,4 @@ public class TranscriptionMetrics
         return $"{minutes}:{remainingSeconds:D2}";
     }
 }
+

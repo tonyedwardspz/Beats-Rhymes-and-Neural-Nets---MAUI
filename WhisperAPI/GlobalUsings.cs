@@ -15,6 +15,5 @@ global using Whisper.net.Ggml;
 global using Whisper.net.Logger;
 global using WhisperAPI.Endpoints;
 global using WhisperAPI.Interfaces;
-global using WhisperAPI.Models;
 global using WhisperAPI.Services;
 global using Xabe.FFmpeg;

@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MAUI App", "MAUI App\MAUI A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhisperAPI", "WhisperAPI\WhisperAPI.csproj", "{4F8703A6-0F51-4CA8-A923-CD57C538E24B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedLibrary\SharedLibrary.csproj", "{18F25F1F-8CAD-4955-AEFE-396406B4A240}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4F8703A6-0F51-4CA8-A923-CD57C538E24B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F8703A6-0F51-4CA8-A923-CD57C538E24B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F8703A6-0F51-4CA8-A923-CD57C538E24B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18F25F1F-8CAD-4955-AEFE-396406B4A240}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18F25F1F-8CAD-4955-AEFE-396406B4A240}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18F25F1F-8CAD-4955-AEFE-396406B4A240}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18F25F1F-8CAD-4955-AEFE-396406B4A240}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

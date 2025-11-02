@@ -1,5 +1,5 @@
 using System.Text.Json;
-using WhisperAPI.Models;
+using SharedLibrary.Models;
 
 namespace WhisperAPI.Services;
 
@@ -39,14 +39,10 @@ public class MetricsService : IMetricsService
         {
             _logger.LogInformation("Recording metrics for {ModelName} - Total: {TotalTime}ms, Success: {Success}", 
                 metrics.ModelName, metrics.TotalTimeMs, metrics.Success);
-
-            // Load existing metrics
-            var container = await LoadMetricsAsync();
             
-            // Add new metrics
+            var container = await LoadMetricsAsync(); // Get the json file
             container.TranscriptionMetrics.Add(metrics);
             
-            // Save back to file
             await SaveMetricsAsync(container);
         }
         catch (Exception ex)

@@ -42,7 +42,7 @@
                 
                 <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand">
                     <Label Text="{Binding TranscriptionResult}"
-                           FontSize="16"
+                           FontSize="24"
                            TextColor="Black"
                            BackgroundColor="LightGray"
                            Padding="15"
@@ -82,7 +82,7 @@
                 
                 <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand">
                     <Label Text="{Binding CorrectedLyrics}"
-                           FontSize="16"
+                           FontSize="24"
                            TextColor="Black"
                            BackgroundColor="LightGray"
                            Padding="15"

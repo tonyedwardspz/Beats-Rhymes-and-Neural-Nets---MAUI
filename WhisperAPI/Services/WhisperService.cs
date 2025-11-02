@@ -1,17 +1,6 @@
+using SharedLibrary.Models;
 
 namespace WhisperAPI.Services;
-
-public class WhisperModel
-{
-    public string Name { get; set; } = string.Empty;
-    public string FileName { get; set; } = string.Empty;
-    public string FilePath { get; set; } = string.Empty;
-    public long SizeBytes { get; set; }
-    public string SizeFormatted { get; set; } = string.Empty;
-    public string ModelType { get; set; } = string.Empty;
-    public string QuantizationLevel { get; set; } = string.Empty;
-    public bool IsCurrent { get; set; }
-}
 
 public interface IWhisperService
 {
@@ -56,6 +45,7 @@ public class WhisperService : IWhisperService
     {
         var startTime = DateTime.UtcNow;
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
         var metrics = new TranscriptionMetrics
         {
             Timestamp = startTime,

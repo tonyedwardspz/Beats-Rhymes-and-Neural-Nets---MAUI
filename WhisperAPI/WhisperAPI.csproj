@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Beats Rhymes and Neural Nets - MAUI.ServiceDefaults\Beats Rhymes and Neural Nets - MAUI.ServiceDefaults.csproj" />
+        <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
     </ItemGroup>
 
     <ItemGroup>

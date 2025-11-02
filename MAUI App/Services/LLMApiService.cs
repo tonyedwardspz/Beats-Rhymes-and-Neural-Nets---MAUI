@@ -1,3 +1,4 @@
+using SharedLibrary.Models;
 
 namespace MAUI_App.Services;
 

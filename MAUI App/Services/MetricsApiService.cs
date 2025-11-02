@@ -45,12 +45,30 @@ public class MetricsApiService : IMetricsApiService, IDisposable
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var metricsContainer = JsonSerializer.Deserialize<MetricsContainer>(content, _jsonOptions);
+                var metricsContainer = JsonSerializer.Deserialize<SharedLibrary.Models.MetricsContainer>(content, _jsonOptions);
                 
                 if (metricsContainer?.TranscriptionMetrics != null)
                 {
                     _logger.LogInformation("Successfully fetched {Count} metrics", metricsContainer.TranscriptionMetrics.Count);
-                    return ApiResult<List<TranscriptionMetrics>>.Success(metricsContainer.TranscriptionMetrics);
+                    // Convert from SharedLibrary.Models.TranscriptionMetrics to MAUI_App.Models.TranscriptionMetrics
+                    var mauiMetrics = metricsContainer.TranscriptionMetrics
+                        .Select(m => new TranscriptionMetrics
+                        {
+                            Timestamp = m.Timestamp,
+                            ModelName = m.ModelName,
+                            TranscriptionType = m.TranscriptionType,
+                            SessionId = m.SessionId,
+                            FileSizeBytes = m.FileSizeBytes,
+                            AudioDurationSeconds = m.AudioDurationSeconds,
+                            TotalTimeMs = m.TotalTimeMs,
+                            PreprocessingTimeMs = m.PreprocessingTimeMs,
+                            TranscriptionTimeMs = m.TranscriptionTimeMs,
+                            Success = m.Success,
+                            ErrorMessage = m.ErrorMessage,
+                            TranscribedText = m.TranscribedText
+                        })
+                        .ToList();
+                    return ApiResult<List<TranscriptionMetrics>>.Success(mauiMetrics);
                 }
                 
                 return ApiResult<List<TranscriptionMetrics>>.Failure("Failed to deserialize metrics response");
@@ -107,10 +125,3 @@ public class MetricsApiService : IMetricsApiService, IDisposable
     }
 }
 
-/// <summary>
-/// Container for metrics response from API
-/// </summary>
-public class MetricsContainer
-{
-    public List<TranscriptionMetrics> TranscriptionMetrics { get; set; } = new();
-}

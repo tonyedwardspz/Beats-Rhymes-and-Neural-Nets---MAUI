@@ -1,3 +1,5 @@
+using SharedLibrary.Models;
+
 namespace WhisperAPI.Services;
 
 /// <summary>

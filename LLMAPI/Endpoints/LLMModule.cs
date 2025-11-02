@@ -1,6 +1,6 @@
-
 using Microsoft.Extensions.Options;
 using LLMAPI.Services;
+using SharedLibrary.Models;
 
 namespace LLMAPI.Endpoints;
 
@@ -245,7 +245,6 @@ public static class LLMModule
 public record GenerateRequest(string Prompt);
 public record GenerateResponse(string Prompt, string Response);
 public record ModelInfoResponse(string ModelInfo, bool IsReady);
-public record ErrorResponse(string Error);
 
 // Configuration DTOs
 public record LLMConfigurationResponse(

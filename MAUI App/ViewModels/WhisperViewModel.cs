@@ -6,6 +6,7 @@ using System.ComponentModel;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.Graphics;
 using MAUI_App.Models;
+using SharedLibrary.Models;
 
 namespace MAUI_App.ViewModels;
 

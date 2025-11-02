@@ -68,5 +68,8 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-maccatalyst'">
 		<Entitlements Include="Platforms\MacCatalyst\Entitlements.plist" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
+	</ItemGroup>
 
 </Project>

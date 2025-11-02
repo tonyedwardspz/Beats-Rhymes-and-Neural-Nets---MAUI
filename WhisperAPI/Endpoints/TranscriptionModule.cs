@@ -1,4 +1,5 @@
 
+using SharedLibrary.Models;
 
 namespace WhisperAPI.Endpoints;
 

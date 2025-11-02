@@ -1,4 +1,4 @@
-namespace WhisperAPI.Models;
+namespace SharedLibrary.Models;
 
 /// <summary>
 /// Model for tracking transcription performance metrics
@@ -26,3 +26,4 @@ public class MetricsContainer
 {
     public List<TranscriptionMetrics> TranscriptionMetrics { get; set; } = new();
 }
+
