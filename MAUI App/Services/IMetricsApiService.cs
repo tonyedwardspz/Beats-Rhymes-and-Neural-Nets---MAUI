@@ -1,4 +1,5 @@
 using MAUI_App.Models;
+using SharedLibrary.Models;
 
 namespace MAUI_App.Services;
 
@@ -11,7 +12,7 @@ public interface IMetricsApiService
     /// Gets all transcription metrics from the API
     /// </summary>
     /// <returns>List of transcription metrics</returns>
-    Task<ApiResult<List<TranscriptionMetrics>>> GetMetricsAsync();
+    Task<ApiResult<List<MAUI_App.Models.TranscriptionMetrics>>> GetMetricsAsync();
     
     /// <summary>
     /// Clears all transcription metrics from the API

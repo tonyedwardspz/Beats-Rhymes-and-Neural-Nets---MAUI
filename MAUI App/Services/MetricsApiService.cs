@@ -1,4 +1,5 @@
 using MAUI_App.Models;
+using SharedLibrary.Models;
 using System.Text.Json;
 
 namespace MAUI_App.Services;
@@ -34,7 +35,7 @@ public class MetricsApiService : IMetricsApiService, IDisposable
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<List<TranscriptionMetrics>>> GetMetricsAsync()
+    public async Task<ApiResult<List<MAUI_App.Models.TranscriptionMetrics>>> GetMetricsAsync()
     {
         try
         {
@@ -52,7 +53,7 @@ public class MetricsApiService : IMetricsApiService, IDisposable
                     _logger.LogInformation("Successfully fetched {Count} metrics", metricsContainer.TranscriptionMetrics.Count);
                     // Convert from SharedLibrary.Models.TranscriptionMetrics to MAUI_App.Models.TranscriptionMetrics
                     var mauiMetrics = metricsContainer.TranscriptionMetrics
-                        .Select(m => new TranscriptionMetrics
+                        .Select(m => new MAUI_App.Models.TranscriptionMetrics
                         {
                             Timestamp = m.Timestamp,
                             ModelName = m.ModelName,
@@ -68,24 +69,24 @@ public class MetricsApiService : IMetricsApiService, IDisposable
                             TranscribedText = m.TranscribedText
                         })
                         .ToList();
-                    return ApiResult<List<TranscriptionMetrics>>.Success(mauiMetrics);
+                    return ApiResult<List<MAUI_App.Models.TranscriptionMetrics>>.Success(mauiMetrics);
                 }
                 
-                return ApiResult<List<TranscriptionMetrics>>.Failure("Failed to deserialize metrics response");
+                return ApiResult<List<MAUI_App.Models.TranscriptionMetrics>>.Failure("Failed to deserialize metrics response");
             }
             
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Failed to fetch metrics. Status: {StatusCode}, Content: {Content}", 
                 response.StatusCode, errorContent);
             
-            return ApiResult<List<TranscriptionMetrics>>.Failure(
+            return ApiResult<List<MAUI_App.Models.TranscriptionMetrics>>.Failure(
                 $"Metrics API request failed with status {response.StatusCode}", 
                 (int)response.StatusCode);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception occurred while fetching metrics");
-            return ApiResult<List<TranscriptionMetrics>>.Failure($"Exception: {ex.Message}");
+            return ApiResult<List<MAUI_App.Models.TranscriptionMetrics>>.Failure($"Exception: {ex.Message}");
         }
     }
 

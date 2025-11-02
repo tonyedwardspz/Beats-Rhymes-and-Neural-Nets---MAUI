@@ -1,3 +1,4 @@
+using SharedLibrary.Models;
 
 namespace MAUI_App.Services;
 
@@ -48,36 +49,4 @@ public interface ILLMApiService
     Task<ApiResult<LLMConfigurationResponse>> UpdateConfigurationAsync(
         LLMConfigurationUpdateRequest request, 
         CancellationToken cancellationToken = default);
-}
-
-/// <summary>
-/// Result wrapper for LLMAPI operations
-/// </summary>
-/// <typeparam name="T">The type of the result data</typeparam>
-public class ApiResult<T>
-{
-    public bool IsSuccess { get; set; }
-    public T? Data { get; set; }
-    public string? ErrorMessage { get; set; }
-    public int StatusCode { get; set; }
-
-    public static ApiResult<T> Success(T data, int statusCode = 200)
-    {
-        return new ApiResult<T>
-        {
-            IsSuccess = true,
-            Data = data,
-            StatusCode = statusCode
-        };
-    }
-
-    public static ApiResult<T> Failure(string errorMessage, int statusCode = 500)
-    {
-        return new ApiResult<T>
-        {
-            IsSuccess = false,
-            ErrorMessage = errorMessage,
-            StatusCode = statusCode
-        };
-    }
 }
