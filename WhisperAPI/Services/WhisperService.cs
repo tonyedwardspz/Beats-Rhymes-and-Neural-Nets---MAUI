@@ -14,42 +14,234 @@ public interface IWhisperService
 public class WhisperService : IWhisperService
 {
     private string _modelFileName;
+    private string? _resolvedModelPath;
     private readonly ILogger<WhisperService> _logger;
-    private WhisperFactory _whisperFactory;
+    private WhisperFactory? _whisperFactory;
     private readonly AudioFileHelper _audioFileHelper;
     private readonly IMetricsService _metricsService;
     private readonly IConfiguration _configuration;
     private readonly string _modelsDirectory;
+    private readonly object _factoryLock = new object();
 
     public WhisperService(IConfiguration configuration, ILogger<WhisperService> logger, AudioFileHelper audioFileHelper, IMetricsService metricsService)
     {
         _configuration = configuration;
-        _modelFileName = configuration["Whisper:ModelPath"] ?? "./WhisperModels/ggml-base.bin";
-        _modelsDirectory = Path.GetDirectoryName(_modelFileName) ?? "./WhisperModels";
-        _logger = logger;
+        _logger = logger; // Assign logger first so it's available in ResolveModelPath
         _audioFileHelper = audioFileHelper;
         _metricsService = metricsService;
         
-        // Initialize WhisperFactory at startup
-        if (!File.Exists(_modelFileName))
+        var configPath = configuration["Whisper:ModelPath"] ?? "./WhisperModels/ggml-base.bin";
+        _modelFileName = configPath;
+        _resolvedModelPath = ResolveModelPath(configPath);
+        _modelsDirectory = Path.GetDirectoryName(_resolvedModelPath) ?? "./WhisperModels";
+        
+        // Ensure model directory exists
+        EnsureModelDirectoryExists();
+        
+        // Try to initialize WhisperFactory, but don't throw if model is missing
+        // This allows the service to start and initialize lazily when needed
+        try
         {
-            throw new FileNotFoundException($"Whisper model not found: {_modelFileName}");
+            if (File.Exists(_resolvedModelPath))
+            {
+                _logger.LogInformation("Initializing WhisperFactory with model: {ModelPath}", _resolvedModelPath);
+                _whisperFactory = WhisperFactory.FromPath(_resolvedModelPath);
+                _logger.LogInformation("WhisperFactory initialized successfully");
+            }
+            else
+            {
+                _logger.LogWarning("Whisper model not found at startup: {ModelPath}. Factory will be initialized on first use.", _resolvedModelPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to initialize WhisperFactory at startup. Factory will be initialized on first use.");
+        }
+    }
+
+    /// <summary>
+    /// Resolves the model path, handling relative paths from the bin directory to project root
+    /// </summary>
+    private string ResolveModelPath(string modelPath)
+    {
+        try
+        {
+            if (Path.IsPathRooted(modelPath))
+            {
+                return modelPath;
+            }
+
+            // Get the base directory (typically bin/Debug/netX.0)
+            var baseDirectory = AppContext.BaseDirectory ?? Directory.GetCurrentDirectory();
+            
+            // Find project root (solution root) by going up until we find the solution file or Models directory
+            var projectRoot = FindProjectRoot(baseDirectory);
+            
+            // Normalize the model path - if it starts with ../, remove it since we're already at project root
+            var normalizedPath = modelPath;
+            if (normalizedPath.StartsWith("../") || normalizedPath.StartsWith("..\\"))
+            {
+                // Remove the ../ prefix
+                normalizedPath = normalizedPath.Substring(3);
+            }
+            else if (normalizedPath.StartsWith("./") || normalizedPath.StartsWith(".\\"))
+            {
+                // Remove the ./ prefix
+                normalizedPath = normalizedPath.Substring(2);
+            }
+            
+            // Resolve relative path from project root
+            var resolvedPath = Path.GetFullPath(Path.Combine(projectRoot, normalizedPath));
+            return resolvedPath;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resolving model path '{ModelPath}'", modelPath);
+            return modelPath; // Return original path if resolution fails
+        }
+    }
+
+    /// <summary>
+    /// Finds the project root directory by traversing up from the current directory
+    /// </summary>
+    private string FindProjectRoot(string startDirectory)
+    {
+        var currentDir = new DirectoryInfo(startDirectory);
+        var maxLevels = 10; // Safety limit
+        var level = 0;
+        
+        // Go up the directory tree looking for the solution file first (most reliable)
+        while (currentDir != null && level < maxLevels)
+        {
+            // Prioritize finding .sln file (solution root) - this is the most reliable indicator
+            try
+            {
+                var solutionFiles = currentDir.GetFiles("*.sln");
+                if (solutionFiles.Length > 0)
+                {
+                    _logger.LogInformation("Found solution file at: {Path}", currentDir.FullName);
+                    return currentDir.FullName;
+                }
+            }
+            catch
+            {
+                // Ignore errors when checking for files
+            }
+            
+            currentDir = currentDir.Parent;
+            level++;
         }
         
-        _logger.LogInformation("Initializing WhisperFactory with model: {ModelPath}", _modelFileName);
-        _whisperFactory = WhisperFactory.FromPath(_modelFileName);
-        _logger.LogInformation("WhisperFactory initialized successfully");
+        // If no .sln found, try again looking for Models directory with llm/whisper subdirectories
+        currentDir = new DirectoryInfo(startDirectory);
+        level = 0;
+        while (currentDir != null && level < maxLevels)
+        {
+            try
+            {
+                var modelsDir = Path.Combine(currentDir.FullName, "Models");
+                if (Directory.Exists(modelsDir))
+                {
+                    // Verify it's the solution root by checking for subdirectories llm and whisper
+                    var llmDir = Path.Combine(modelsDir, "llm");
+                    var whisperDir = Path.Combine(modelsDir, "whisper");
+                    if (Directory.Exists(llmDir) || Directory.Exists(whisperDir))
+                    {
+                        _logger.LogInformation("Found Models directory with llm/whisper at: {Path}", currentDir.FullName);
+                        return currentDir.FullName;
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore errors when checking directories
+            }
+            
+            currentDir = currentDir.Parent;
+            level++;
+        }
+        
+        // Fallback: go up 4 levels from bin/Debug/netX.0 to reach solution root
+        // bin/Debug/netX.0 -> bin/Debug -> bin -> WhisperAPI -> solution root
+        var fallbackDir = new DirectoryInfo(startDirectory);
+        for (int i = 0; i < 4 && fallbackDir != null; i++)
+        {
+            fallbackDir = fallbackDir.Parent;
+        }
+        
+        _logger.LogInformation("Using fallback project root: {Path}", fallbackDir?.FullName ?? startDirectory);
+        return fallbackDir?.FullName ?? startDirectory;
+    }
+
+    /// <summary>
+    /// Ensures the model directory exists, creating it if necessary
+    /// </summary>
+    private void EnsureModelDirectoryExists()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(_modelsDirectory) && !Directory.Exists(_modelsDirectory))
+            {
+                Directory.CreateDirectory(_modelsDirectory);
+                _logger.LogInformation("Created model directory: {ModelsDirectory}", _modelsDirectory);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to create model directory: {ModelsDirectory}", _modelsDirectory);
+        }
+    }
+
+    /// <summary>
+    /// Ensures the WhisperFactory is initialized before use
+    /// </summary>
+    private void EnsureFactoryInitialized()
+    {
+        if (_whisperFactory != null)
+            return;
+
+        lock (_factoryLock)
+        {
+            if (_whisperFactory != null)
+                return;
+
+            try
+            {
+                if (_resolvedModelPath == null)
+                _resolvedModelPath = ResolveModelPath(_modelFileName);
+
+                if (!File.Exists(_resolvedModelPath))
+                {
+                    var errorMessage = $"Whisper model not found at path: {_resolvedModelPath} (resolved from: {_modelFileName}). " +
+                                       $"Please ensure the model file exists in the Models/whisper/ directory.";
+                    _logger.LogError(errorMessage);
+                    throw new FileNotFoundException(errorMessage);
+                }
+
+                _logger.LogInformation("Initializing WhisperFactory with model: {ModelPath}", _resolvedModelPath);
+                _whisperFactory = WhisperFactory.FromPath(_resolvedModelPath);
+                _logger.LogInformation("WhisperFactory initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to initialize WhisperFactory");
+                throw;
+            }
+        }
     }
 
     public async Task<JsonArray> TranscribeFilePathAsync(string filePath, string? transcriptionType = null, string? sessionId = null, int? chunkIndex = null)
     {
+        // Ensure factory is initialized before use
+        EnsureFactoryInitialized();
+
         var startTime = DateTime.UtcNow;
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         
         var metrics = new TranscriptionMetrics
         {
             Timestamp = startTime,
-            ModelName = Path.GetFileNameWithoutExtension(_modelFileName),
+            ModelName = Path.GetFileNameWithoutExtension(_resolvedModelPath ?? _modelFileName),
             TranscriptionType = transcriptionType ?? "File Upload",
             SessionId = sessionId ?? Guid.NewGuid().ToString(),
             ChunkIndex = chunkIndex,
@@ -71,7 +263,7 @@ public class WhisperService : IWhisperService
             // Perform transcription
             var transcriptionStart = stopwatch.ElapsedMilliseconds;
             using var whisperLogger = LogProvider.AddConsoleLogging(WhisperLogLevel.Debug);
-            using var processor = _whisperFactory.CreateBuilder()
+            using var processor = _whisperFactory!.CreateBuilder()
                 .WithLanguage("auto")
                 .Build();
             using var fileStream = File.OpenRead(processedFilePath);
@@ -181,19 +373,55 @@ public class WhisperService : IWhisperService
 
     public async Task<string> GetModelDetailsAsync()
     {
-        var modelInfo = new
+        try
         {
-            ModelName = Path.GetFileNameWithoutExtension(_modelFileName),
-            ModelPath = _modelFileName,
-            ModelSize = File.Exists(_modelFileName) ? new FileInfo(_modelFileName).Length : 0,
-            ModelSizeFormatted = File.Exists(_modelFileName) ? FormatFileSize(new FileInfo(_modelFileName).Length) : "Unknown",
-            ModelExists = File.Exists(_modelFileName),
-            FactoryInitialized = _whisperFactory != null,
-            QuantizationLevel = GetQuantizationLevel(_modelFileName),
-            ModelType = GetModelType(_modelFileName)
-        };
-        
-        return await Task.FromResult(System.Text.Json.JsonSerializer.Serialize(modelInfo, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+            if (_resolvedModelPath == null)
+                _resolvedModelPath = ResolveModelPath(_modelFileName);
+
+            var modelExists = File.Exists(_resolvedModelPath);
+            var modelSize = 0L;
+            var modelSizeFormatted = "Unknown";
+
+            if (modelExists)
+            {
+                try
+                {
+                    var fileInfo = new FileInfo(_resolvedModelPath);
+                    modelSize = fileInfo.Length;
+                    modelSizeFormatted = FormatFileSize(modelSize);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error getting model file size");
+                }
+            }
+
+            var modelInfo = new
+            {
+                ModelName = Path.GetFileNameWithoutExtension(_resolvedModelPath ?? _modelFileName),
+                ModelPath = _resolvedModelPath ?? _modelFileName,
+                OriginalModelPath = _modelFileName,
+                ModelSize = modelSize,
+                ModelSizeFormatted = modelSizeFormatted,
+                ModelExists = modelExists,
+                FactoryInitialized = _whisperFactory != null,
+                QuantizationLevel = GetQuantizationLevel(_resolvedModelPath ?? _modelFileName),
+                ModelType = GetModelType(_resolvedModelPath ?? _modelFileName)
+            };
+            
+            return await Task.FromResult(System.Text.Json.JsonSerializer.Serialize(modelInfo, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting model details");
+            return await Task.FromResult(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                Error = "Failed to get model details",
+                Message = ex.Message,
+                ModelPath = _modelFileName,
+                FactoryInitialized = _whisperFactory != null
+            }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        }
     }
 
     private string GetQuantizationLevel(string modelPath)
@@ -253,6 +481,9 @@ public class WhisperService : IWhisperService
         
         try
         {
+            // Ensure directory exists
+            EnsureModelDirectoryExists();
+
             if (!Directory.Exists(_modelsDirectory))
             {
                 _logger.LogWarning("Models directory not found: {ModelsDirectory}", _modelsDirectory);
@@ -264,25 +495,34 @@ public class WhisperService : IWhisperService
                 .OrderBy(f => f)
                 .ToList();
 
+            var currentModelFileName = Path.GetFileName(_resolvedModelPath ?? _modelFileName);
+
             foreach (var modelFile in modelFiles)
             {
-                var fileInfo = new FileInfo(modelFile);
-                var fileName = Path.GetFileName(modelFile);
-                var modelName = Path.GetFileNameWithoutExtension(modelFile);
-                
-                var model = new WhisperModel
+                try
                 {
-                    Name = modelName,
-                    FileName = fileName,
-                    FilePath = modelFile,
-                    SizeBytes = fileInfo.Length,
-                    SizeFormatted = FormatFileSize(fileInfo.Length),
-                    ModelType = GetModelType(modelFile),
-                    QuantizationLevel = GetQuantizationLevel(modelFile),
-                    IsCurrent = Path.GetFileName(modelFile) == Path.GetFileName(_modelFileName)
-                };
-                
-                models.Add(model);
+                    var fileInfo = new FileInfo(modelFile);
+                    var fileName = Path.GetFileName(modelFile);
+                    var modelName = Path.GetFileNameWithoutExtension(modelFile);
+                    
+                    var model = new WhisperModel
+                    {
+                        Name = modelName,
+                        FileName = fileName,
+                        FilePath = modelFile,
+                        SizeBytes = fileInfo.Length,
+                        SizeFormatted = FormatFileSize(fileInfo.Length),
+                        ModelType = GetModelType(modelFile),
+                        QuantizationLevel = GetQuantizationLevel(modelFile),
+                        IsCurrent = Path.GetFileName(modelFile) == currentModelFileName
+                    };
+                    
+                    models.Add(model);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error processing model file: {ModelFile}", modelFile);
+                }
             }
         }
         catch (Exception ex)
@@ -297,28 +537,45 @@ public class WhisperService : IWhisperService
     {
         try
         {
+            // Ensure directory exists
+            EnsureModelDirectoryExists();
+
             var modelPath = Path.Combine(_modelsDirectory, $"{modelName}.bin");
+            var resolvedModelPath = ResolveModelPath(modelPath);
             
-            if (!File.Exists(modelPath))
+            if (!File.Exists(resolvedModelPath))
             {
-                _logger.LogError("Model file not found: {ModelPath}", modelPath);
+                _logger.LogError("Model file not found: {ModelPath} (resolved from: {OriginalPath})", resolvedModelPath, modelPath);
                 return Task.FromResult(false);
             }
 
-            _logger.LogInformation("Switching to model: {ModelPath}", modelPath);
+            _logger.LogInformation("Switching to model: {ModelPath}", resolvedModelPath);
             
-            // Dispose the current factory
-            _whisperFactory?.Dispose();
-            
-            // Create new factory with the new model
-            _whisperFactory = WhisperFactory.FromPath(modelPath);
-            _modelFileName = modelPath;
-            
-            // Update configuration (this will persist the change)
-            _configuration["Whisper:ModelPath"] = modelPath;
-            
-            _logger.LogInformation("Successfully switched to model: {ModelPath}", modelPath);
-            return Task.FromResult(true);
+            lock (_factoryLock)
+            {
+                // Dispose the current factory
+                _whisperFactory?.Dispose();
+                
+                try
+                {
+                    // Create new factory with the new model
+                    _whisperFactory = WhisperFactory.FromPath(resolvedModelPath);
+                    _modelFileName = modelPath;
+                    _resolvedModelPath = resolvedModelPath;
+                    
+                    // Update configuration (this will persist the change)
+                    _configuration["Whisper:ModelPath"] = modelPath;
+                    
+                    _logger.LogInformation("Successfully switched to model: {ModelPath}", resolvedModelPath);
+                    return Task.FromResult(true);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to create WhisperFactory for model: {ModelPath}", resolvedModelPath);
+                    _whisperFactory = null;
+                    return Task.FromResult(false);
+                }
+            }
         }
         catch (Exception ex)
         {

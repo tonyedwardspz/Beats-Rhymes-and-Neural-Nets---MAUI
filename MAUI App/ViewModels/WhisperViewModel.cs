@@ -563,10 +563,20 @@ public class WhisperPageViewModel : BaseViewModel
 		{
 			var result = await whisperApiService.GetAvailableModelsAsync();
 			
-			if (result.IsSuccess && result.Data != null)
+		if (result.IsSuccess && result.Data != null)
+		{
+			AvailableModels = result.Data;
+			
+			// Check if no models are available
+			if (AvailableModels.Count == 0)
 			{
-				AvailableModels = result.Data;
-				
+				await AppShell.Current.DisplayAlert("No Models Found", 
+					"No Whisper models were found in the Models/whisper/ directory.\n\n" +
+					"Please ensure you have at least one model file (e.g., ggml-base.bin) in the Models/whisper/ folder at the project root.", 
+					"OK");
+			}
+			else
+			{
 				// Set the current model as selected if none is selected
 				if (SelectedModel == null || string.IsNullOrEmpty(SelectedModel.Name))
 				{
@@ -577,11 +587,12 @@ public class WhisperPageViewModel : BaseViewModel
 					}
 				}
 			}
-			else
-			{
-				await AppShell.Current.DisplayAlert("Error", 
-					$"Failed to load models: {result.ErrorMessage}", "OK");
-			}
+		}
+		else
+		{
+			await AppShell.Current.DisplayAlert("Error", 
+				$"Failed to load models: {result.ErrorMessage}", "OK");
+		}
 		}
 		catch (Exception ex)
 		{

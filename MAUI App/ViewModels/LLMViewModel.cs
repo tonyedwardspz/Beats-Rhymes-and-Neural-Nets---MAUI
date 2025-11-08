@@ -263,7 +263,64 @@ public class LLMViewModel : BaseViewModel
             {
                 ModelInfo = FormatLLMModelInfo(result.Data.ModelInfo);
                 IsModelReady = result.Data.IsReady;
-                StatusMessage = IsModelReady ? "Model is ready" : "Model is not ready";
+                
+                // Check if model exists by parsing the model info JSON
+                try
+                {
+                    var jsonDocument = JsonDocument.Parse(result.Data.ModelInfo);
+                    bool modelExists = true;
+                    string? modelPath = null;
+                    
+                    // Check if this is the nested LLM response structure
+                    if (jsonDocument.RootElement.TryGetProperty("modelInfo", out var modelInfoElement))
+                    {
+                        var nestedJson = modelInfoElement.GetString();
+                        if (!string.IsNullOrEmpty(nestedJson))
+                        {
+                            var nestedDocument = JsonDocument.Parse(nestedJson);
+                            if (nestedDocument.RootElement.TryGetProperty("ModelExists", out var modelExistsElement))
+                            {
+                                modelExists = modelExistsElement.GetBoolean();
+                            }
+                            if (nestedDocument.RootElement.TryGetProperty("ModelPath", out var modelPathElement))
+                            {
+                                modelPath = modelPathElement.GetString();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Direct structure
+                        if (jsonDocument.RootElement.TryGetProperty("ModelExists", out var modelExistsElement))
+                        {
+                            modelExists = modelExistsElement.GetBoolean();
+                        }
+                        if (jsonDocument.RootElement.TryGetProperty("ModelPath", out var modelPathElement))
+                        {
+                            modelPath = modelPathElement.GetString();
+                        }
+                    }
+                    
+                    // Alert user if model doesn't exist
+                    if (!modelExists)
+                    {
+                        await AppShell.Current.DisplayAlert("Model Not Found", 
+                            $"The LLM model file was not found at the expected location.\n\n" +
+                            $"Expected path: {modelPath ?? "Unknown"}\n\n" +
+                            $"Please ensure the model file exists in the Models/llm/ directory at the project root.", 
+                            "OK");
+                        StatusMessage = "Model file not found";
+                    }
+                    else
+                    {
+                        StatusMessage = IsModelReady ? "Model is ready" : "Model is not ready";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Could not parse model info to check existence");
+                    StatusMessage = IsModelReady ? "Model is ready" : "Model is not ready";
+                }
             }
             else
             {
@@ -271,6 +328,12 @@ public class LLMViewModel : BaseViewModel
                 IsModelReady = false;
                 StatusMessage = $"Error: {result.ErrorMessage}";
                 _logger.LogError("Failed to get model info: {Error}", result.ErrorMessage);
+                
+                // Alert user about the error
+                await AppShell.Current.DisplayAlert("Model Check Failed", 
+                    $"Unable to check model status: {result.ErrorMessage}\n\n" +
+                    $"Please ensure the LLM API is running and the model file exists in the Models/llm/ directory.", 
+                    "OK");
             }
         }
         catch (Exception ex)
@@ -279,6 +342,12 @@ public class LLMViewModel : BaseViewModel
             IsModelReady = false;
             StatusMessage = $"Unexpected error: {ex.Message}";
             _logger.LogError(ex, "Unexpected error while checking model info");
+            
+            // Alert user about the unexpected error
+            await AppShell.Current.DisplayAlert("Model Check Error", 
+                $"An unexpected error occurred while checking the model: {ex.Message}\n\n" +
+                $"Please ensure the LLM API is running and accessible.", 
+                "OK");
         }
     }
 
