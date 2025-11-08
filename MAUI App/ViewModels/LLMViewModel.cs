@@ -20,6 +20,8 @@ public class LLMViewModel : BaseViewModel
     private bool _isModelReady = false;
     private string _statusMessage = string.Empty;
     private ObservableCollection<ConversationMessage> _conversation = new();
+    private bool _isChatMode = false;
+    private string? _chatSessionId = null;
 
     public LLMViewModel(ILLMApiService llmApiService, ILogger<LLMViewModel> logger)
     {
@@ -97,6 +99,22 @@ public class LLMViewModel : BaseViewModel
         set => SetProperty(ref _conversation, value);
     }
 
+    public bool IsChatMode
+    {
+        get => _isChatMode;
+        set
+        {
+            if (SetProperty(ref _isChatMode, value))
+            {
+                // When switching to one-shot mode, clear the session
+                if (!value)
+                {
+                    _chatSessionId = null;
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Generates a complete response (non-streaming)
     /// </summary>
@@ -118,36 +136,95 @@ public class LLMViewModel : BaseViewModel
         Prompt = string.Empty;
 
         IsGenerating = true;
-        StatusMessage = "Generating response...";
+        StatusMessage = IsChatMode ? "Generating chat response..." : "Generating response...";
 
         try
         {
-            var result = await _llmApiService.GenerateResponseAsync(currentPrompt);
-            
-            if (result.IsSuccess && result.Data != null)
+            if (IsChatMode)
             {
-                // Add AI response to conversation
-                var aiMessage = new ConversationMessage
+                // Use chat session endpoint
+                // Create session if we don't have one
+                if (string.IsNullOrEmpty(_chatSessionId))
                 {
-                    Content = result.Data.Response,
-                    IsUser = false
-                };
-                Conversation.Add(aiMessage);
+                    StatusMessage = "Creating chat session...";
+                    var sessionResult = await _llmApiService.CreateChatSessionAsync();
+                    
+                    if (!sessionResult.IsSuccess || sessionResult.Data == null)
+                    {
+                        var errorMessage = new ConversationMessage
+                        {
+                            Content = $"Error creating chat session: {sessionResult.ErrorMessage}",
+                            IsUser = false
+                        };
+                        Conversation.Add(errorMessage);
+                        StatusMessage = $"Error: {sessionResult.ErrorMessage}";
+                        _logger.LogError("Failed to create chat session: {Error}", sessionResult.ErrorMessage);
+                        return;
+                    }
+                    
+                    _chatSessionId = sessionResult.Data.SessionId;
+                    _logger.LogInformation("Created chat session: {SessionId}", _chatSessionId);
+                }
+
+                StatusMessage = "Generating chat response...";
+                var chatResult = await _llmApiService.SendChatMessageAsync(_chatSessionId, currentPrompt);
                 
-                StatusMessage = "Response generated successfully";
+                if (chatResult.IsSuccess && chatResult.Data != null)
+                {
+                    // Add AI response to conversation
+                    var aiMessage = new ConversationMessage
+                    {
+                        Content = chatResult.Data.Response,
+                        IsUser = false
+                    };
+                    Conversation.Add(aiMessage);
+                    
+                    StatusMessage = "Chat response generated successfully";
+                }
+                else
+                {
+                    // Add error message to conversation
+                    var errorMessage = new ConversationMessage
+                    {
+                        Content = $"Error: {chatResult.ErrorMessage}",
+                        IsUser = false
+                    };
+                    Conversation.Add(errorMessage);
+                    
+                    StatusMessage = $"Error: {chatResult.ErrorMessage}";
+                    _logger.LogError("Failed to send chat message: {Error}", chatResult.ErrorMessage);
+                }
             }
             else
             {
-                // Add error message to conversation
-                var errorMessage = new ConversationMessage
-                {
-                    Content = $"Error: {result.ErrorMessage}",
-                    IsUser = false
-                };
-                Conversation.Add(errorMessage);
+                // Use one-shot endpoint
+                var result = await _llmApiService.GenerateResponseAsync(currentPrompt);
                 
-                StatusMessage = $"Error: {result.ErrorMessage}";
-                _logger.LogError("Failed to generate response: {Error}", result.ErrorMessage);
+                if (result.IsSuccess && result.Data != null)
+                {
+                    // Add AI response to conversation
+                    var aiMessage = new ConversationMessage
+                    {
+                        Content = result.Data.Response,
+                        IsUser = false
+                    };
+                    Conversation.Add(aiMessage);
+                    
+                    StatusMessage = "Response generated successfully";
+                }
+                else
+                {
+                    // Add error message to conversation
+                    var errorMessage = new ConversationMessage
+                    {
+                        Content = $"Error: {result.ErrorMessage}",
+                        IsUser = false
+                    };
+                    Conversation.Add(errorMessage);
+                    
+                    StatusMessage = $"Error: {result.ErrorMessage}";
+                    _logger.LogError("Failed to generate response: {Error}", result.ErrorMessage);
+                }
             }
         }
         catch (Exception ex)
@@ -245,7 +322,9 @@ public class LLMViewModel : BaseViewModel
     private void ClearConversation()
     {
         Conversation.Clear();
-        StatusMessage = "Conversation cleared";
+        // If in chat mode, we keep the session but clear the UI conversation
+        // The session history on the server remains intact
+        StatusMessage = IsChatMode ? "Conversation cleared (session still active)" : "Conversation cleared";
     }
 
     /// <summary>

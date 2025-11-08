@@ -11,6 +11,7 @@ builder.Services.Configure<LLMConfiguration>(
 builder.Configuration.GetSection(LLMConfiguration.SectionName));
 
 builder.Services.AddSingleton<ILLMModelService, LLMModelService>();
+builder.Services.AddSingleton<ILLMChatSessionService, LLMChatSessionService>();
 
 // Add hosted service to initialize the model on startup
 builder.Services.AddHostedService<LLMModelInitializationService>();

@@ -49,4 +49,23 @@ public interface ILLMApiService
     Task<ApiResult<LLMConfigurationResponse>> UpdateConfigurationAsync(
         LLMConfigurationUpdateRequest request, 
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates a new chat session
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Session ID</returns>
+    Task<ApiResult<CreateChatSessionResponse>> CreateChatSessionAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sends a message to a chat session
+    /// </summary>
+    /// <param name="sessionId">The chat session ID</param>
+    /// <param name="message">The message to send</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Chat response</returns>
+    Task<ApiResult<ChatMessageResponse>> SendChatMessageAsync(
+        string sessionId, 
+        string message, 
+        CancellationToken cancellationToken = default);
 }

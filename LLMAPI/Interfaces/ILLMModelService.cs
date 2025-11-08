@@ -26,4 +26,14 @@ public interface ILLMModelService
     /// Gets information about the loaded model
     /// </summary>
     string GetModelInfo();
+
+    /// <summary>
+    /// Gets the loaded model weights for creating contexts (for chat sessions)
+    /// </summary>
+    LLamaWeights? GetModel();
+
+    /// <summary>
+    /// Gets the model parameters for creating contexts
+    /// </summary>
+    ModelParams? GetModelParameters();
 }

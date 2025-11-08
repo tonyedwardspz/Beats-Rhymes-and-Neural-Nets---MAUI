@@ -341,4 +341,144 @@ public class LLMApiService : ILLMApiService
         }
     }
 
+    /// <inheritdoc />
+    public async Task<ApiResult<CreateChatSessionResponse>> CreateChatSessionAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogInformation("Creating new chat session");
+            
+            var response = await _httpClient.PostAsync("/api/llm/chat/create", null, cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var sessionResponse = await response.Content.ReadFromJsonAsync<CreateChatSessionResponse>(_jsonOptions, cancellationToken);
+                
+                if (sessionResponse != null)
+                {
+                    _logger.LogInformation("Successfully created chat session: {SessionId}", sessionResponse.SessionId);
+                    return ApiResult<CreateChatSessionResponse>.Success(sessionResponse);
+                }
+                
+                return ApiResult<CreateChatSessionResponse>.Failure("Failed to deserialize chat session response");
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Failed to create chat session. Status: {StatusCode}, Content: {Content}", 
+                response.StatusCode, errorContent);
+            
+            // Try to parse error response
+            var errorMessage = "Unknown error";
+            try
+            {
+                var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(errorContent, _jsonOptions);
+                if (errorResponse != null)
+                {
+                    errorMessage = errorResponse.Error;
+                }
+            }
+            catch
+            {
+                // Use default error message if parsing fails
+            }
+            
+            return ApiResult<CreateChatSessionResponse>.Failure(errorMessage, (int)response.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Network error while creating chat session");
+            return ApiResult<CreateChatSessionResponse>.Failure("Network error: Unable to connect to LLMAPI");
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "Request timeout while creating chat session");
+            return ApiResult<CreateChatSessionResponse>.Failure("Request timeout");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while creating chat session");
+            return ApiResult<CreateChatSessionResponse>.Failure($"Unexpected error: {ex.Message}");
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<ApiResult<ChatMessageResponse>> SendChatMessageAsync(
+        string sessionId, 
+        string message, 
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            return ApiResult<ChatMessageResponse>.Failure("Session ID cannot be empty", 400);
+        }
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return ApiResult<ChatMessageResponse>.Failure("Message cannot be empty", 400);
+        }
+
+        try
+        {
+            _logger.LogInformation("Sending chat message to session {SessionId} (length: {Length})", sessionId, message.Length);
+            
+            var request = new ChatMessageRequest(message);
+            var response = await _httpClient.PostAsJsonAsync($"/api/llm/chat/{sessionId}", request, _jsonOptions, cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var chatResponse = await response.Content.ReadFromJsonAsync<ChatMessageResponse>(_jsonOptions, cancellationToken);
+                
+                if (chatResponse != null)
+                {
+                    _logger.LogInformation("Successfully received chat response (length: {Length})", 
+                        chatResponse.Response.Length);
+                    return ApiResult<ChatMessageResponse>.Success(chatResponse);
+                }
+                
+                return ApiResult<ChatMessageResponse>.Failure("Failed to deserialize chat response");
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Failed to send chat message. Status: {StatusCode}, Content: {Content}", 
+                response.StatusCode, errorContent);
+            
+            // Try to parse error response
+            var errorMessage = "Unknown error";
+            try
+            {
+                var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(errorContent, _jsonOptions);
+                if (errorResponse != null)
+                {
+                    errorMessage = errorResponse.Error;
+                }
+            }
+            catch
+            {
+                // Use default error message if parsing fails
+            }
+            
+            return ApiResult<ChatMessageResponse>.Failure(errorMessage, (int)response.StatusCode);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("Chat message request was cancelled");
+            return ApiResult<ChatMessageResponse>.Failure("Request was cancelled", 499);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Network error while sending chat message");
+            return ApiResult<ChatMessageResponse>.Failure("Network error: Unable to connect to LLMAPI");
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "Request timeout while sending chat message");
+            return ApiResult<ChatMessageResponse>.Failure("Request timeout");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while sending chat message");
+            return ApiResult<ChatMessageResponse>.Failure($"Unexpected error: {ex.Message}");
+        }
+    }
+
 }

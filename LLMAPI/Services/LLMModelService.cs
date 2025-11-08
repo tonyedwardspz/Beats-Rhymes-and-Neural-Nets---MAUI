@@ -332,6 +332,22 @@ public class LLMModelService : ILLMModelService, IDisposable
         }
     }
 
+    /// <summary>
+    /// Gets the loaded model weights for creating contexts (for chat sessions)
+    /// </summary>
+    public LLamaWeights? GetModel()
+    {
+        return _model;
+    }
+
+    /// <summary>
+    /// Gets the model parameters for creating contexts
+    /// </summary>
+    public ModelParams? GetModelParameters()
+    {
+        return _parameters;
+    }
+
     public void Dispose()
     {
         _model?.Dispose();

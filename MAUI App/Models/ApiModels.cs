@@ -45,3 +45,19 @@ public record LLMConfigurationUpdateRequest(
     int GpuLayerCount,
     int BatchSize,
     int? Threads);
+
+// Chat session DTOs
+/// <summary>
+/// Response model for creating a chat session
+/// </summary>
+public record CreateChatSessionResponse(string SessionId);
+
+/// <summary>
+/// Request model for sending a chat message
+/// </summary>
+public record ChatMessageRequest(string Message);
+
+/// <summary>
+/// Response model for chat message
+/// </summary>
+public record ChatMessageResponse(string SessionId, string Message, string Response);

@@ -49,6 +49,19 @@
                             HeightRequest="325"
                             IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                     
+                    <!-- Mode Toggle -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" VerticalOptions="Center">
+                        <Label Grid.Column="0"
+                               Text="Chat Mode:"
+                               TextColor="White"
+                               VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding IsChatMode}"
+                                OnColor="Green"
+                                ThumbColor="White"
+                                VerticalOptions="Center" />
+                    </Grid>
+                    
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
                         <Button Grid.Column="0"
                                 Text="Generate Response" 
@@ -58,15 +71,7 @@
                                 CornerRadius="6"
                                 IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" />
                         
-                        <!-- <Button Grid.Column="1" -->
-                        <!--         Text="Stream Response"  -->
-                        <!--         Command="{Binding GenerateStreamingCommand}" -->
-                        <!--         BackgroundColor="Blue" -->
-                        <!--         TextColor="White" -->
-                        <!--         CornerRadius="6" -->
-                        <!--         IsEnabled="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}" /> -->
-                        <!-- -->
-                        <Button Grid.Column="2"
+                        <Button Grid.Column="1"
                                 Text="Clear Chat" 
                                 Command="{Binding ClearConversationCommand}"
                                 BackgroundColor="Red"

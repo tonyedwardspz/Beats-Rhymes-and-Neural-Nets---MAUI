@@ -11,6 +11,7 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Options;
 global using LLMAPI.Services;
+global using LLMAPI.Interfaces;
 global using LLMAPI.Endpoints;
 global using LLama;
 global using LLama.Common;
