@@ -7,7 +7,7 @@ namespace MAUI_App.Services;
 /// <summary>
 /// Service for fetching transcription metrics from the WhisperAPI
 /// </summary>
-public class MetricsApiService : IMetricsApiService, IDisposable
+public class MetricsApiService : IMetricsApiService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<MetricsApiService> _logger;
@@ -121,9 +121,5 @@ public class MetricsApiService : IMetricsApiService, IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _httpClient?.Dispose();
-    }
 }
 

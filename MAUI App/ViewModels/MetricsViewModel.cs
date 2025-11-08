@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace MAUI_App.ViewModels;
 
-public class MetricsViewModel : INotifyPropertyChanged
+public class MetricsViewModel : BaseViewModel
 {
     private readonly IMetricsApiService _metricsApiService;
     private readonly ILogger<MetricsViewModel> _logger;
@@ -322,12 +322,5 @@ public class MetricsViewModel : INotifyPropertyChanged
             "Success" => Metrics.OrderByDescending(m => m.Success),
             _ => Metrics
         };
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Maui.Devices;
 using Microsoft.Maui.Graphics;
 using MAUI_App.Models;
 using MAUI_App.Services;
+using MAUI_App.Helpers;
 
 namespace MAUI_App.ViewModels;
 
@@ -21,8 +22,7 @@ public class RapModeViewModel : BaseViewModel
     private bool isChunkedRecording = false;
     private int chunkCounter = 0;
     private string? chunkedSessionId = null;
-    private Dictionary<int, string> chunkResults = new Dictionary<int, string>(); // Store results by chunk index
-    private int nextDisplayIndex = 0; // Track which chunk index should be displayed next
+    private readonly ChunkedTranscriptionHelper _chunkedHelper = new(); // Helper for managing chunked transcription
 
     private string _title = "Rap Mode";
     public string Title
@@ -107,8 +107,7 @@ public class RapModeViewModel : BaseViewModel
             // Clear previous results
             TranscriptionResult = "Starting chunked transcription...\n";
             chunkCounter = 0;
-            nextDisplayIndex = 0;
-            chunkResults.Clear();
+            _chunkedHelper.Reset();
             isChunkedRecording = true;
             chunkedSessionId = Guid.NewGuid().ToString(); // Generate session ID for this chunked session
             
@@ -177,29 +176,12 @@ public class RapModeViewModel : BaseViewModel
                 
                 await dispatcher.DispatchAsync(() =>
                 {
-                    string transcriptionText;
-                    if (result.IsSuccess && result.Data != null && result.Data.Results.Length > 0)
-                    {
-                        var transcription = CleanTranscriptionText(string.Join(" ", result.Data.Results));
-                        if (transcription != "[BLANK_AUDIO]")
-                        {
-                            transcriptionText = transcription;
-                        }
-                        else
-                        {
-                            transcriptionText = "[No speech detected]";
-                        }
-                    }
-                    else
-                    {
-                        transcriptionText = "[No speech detected]";
-                    }
+                    // Extract and store the transcription text
+                    var transcriptionText = ChunkedTranscriptionHelper.ExtractTranscriptionText(result);
+                    _chunkedHelper.StoreChunkResult(currentChunkIndex, transcriptionText);
                     
-                    // Store the result by chunk index
-                    chunkResults[currentChunkIndex] = transcriptionText;
-                    
-                    // Display chunks in order
-                    UpdateTranscriptionDisplay();
+                   	// Update the display with all chunks in order
+                    TranscriptionResult = _chunkedHelper.BuildTranscriptionDisplay();
                 });
             }
         }
@@ -208,8 +190,8 @@ public class RapModeViewModel : BaseViewModel
             await dispatcher.DispatchAsync(() =>
             {
                 // Store error in the results dictionary
-                chunkResults[currentChunkIndex] = $"Error in chunk {currentChunkIndex}: {ex.Message}";
-                UpdateTranscriptionDisplay();
+                _chunkedHelper.StoreChunkResult(currentChunkIndex, $"Error in chunk {currentChunkIndex}: {ex.Message}");
+                TranscriptionResult = _chunkedHelper.BuildTranscriptionDisplay();
             });
         }
         finally
@@ -221,21 +203,6 @@ public class RapModeViewModel : BaseViewModel
         }
     }
 
-    private void UpdateTranscriptionDisplay()
-    {
-        // Build transcription result by displaying chunks in order
-        var resultBuilder = new System.Text.StringBuilder();
-        
-        // Display chunks in order, starting from nextDisplayIndex
-        while (chunkResults.ContainsKey(nextDisplayIndex))
-        {
-            resultBuilder.AppendLine(chunkResults[nextDisplayIndex]);
-            nextDisplayIndex++;
-        }
-        
-        // Update the transcription result
-        TranscriptionResult = resultBuilder.ToString();
-    }
 
     void ToggleChunked()
     {
@@ -299,16 +266,5 @@ public class RapModeViewModel : BaseViewModel
         }
     }
 
-    private string CleanTranscriptionText(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return text;
-
-        // Use regex to remove timestamps like "00:00:00->00:00:02: " or "00:00:01.400000->00:00:02.500000: " from the beginning of the text
-        var timestampPattern = @"^\d{2}:\d{2}:\d{2}(?:\.\d+)?->\d{2}:\d{2}:\d{2}(?:\.\d+)?:\s*";
-        var cleanedText = System.Text.RegularExpressions.Regex.Replace(text, timestampPattern, "");
-        
-        return cleanedText.Trim();
-    }
 
 }

@@ -5,7 +5,7 @@ namespace MAUI_App.Services;
 /// <summary>
 /// Service for communicating with the LLM LLMAPI
 /// </summary>
-public class LLMApiService : ILLMApiService, IDisposable
+public class LLMApiService : ILLMApiService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<LLMApiService> _logger;
@@ -341,9 +341,4 @@ public class LLMApiService : ILLMApiService, IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _httpClient?.Dispose();
-        GC.SuppressFinalize(this);
-    }
 }

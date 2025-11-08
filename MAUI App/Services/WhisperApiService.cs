@@ -6,7 +6,7 @@ namespace MAUI_App.Services;
 /// <summary>
 /// Service for communicating with the Whisper API
 /// </summary>
-public class WhisperApiService : IWhisperApiService, IDisposable
+public class WhisperApiService : IWhisperApiService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WhisperApiService> _logger;
@@ -316,9 +316,4 @@ public class WhisperApiService : IWhisperApiService, IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _httpClient?.Dispose();
-        GC.SuppressFinalize(this);
-    }
 }
