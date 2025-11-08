@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage x:Class="MAUI_App.Views.MetricsPage"
+             x:Name="MetricsPageRoot"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MAUI_App.ViewModels"
@@ -208,12 +209,13 @@
                                    HorizontalOptions="Center" />
                             
                             <Button Grid.Column="8" 
-                                    Text="👁️" 
-                                    FontSize="16" 
-                                    BackgroundColor="Transparent" 
-                                    BorderColor="Transparent"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MetricsViewModel}}, Path=ViewTextCommand}"
-                                    CommandParameter="{Binding .}"
+                                    Text="View" 
+                                    FontSize="14" 
+                                    BackgroundColor="#007ACC" 
+                                    TextColor="White"
+                                    BorderColor="#007ACC"
+                                    Padding="12,6"
+                                    Clicked="OnViewButtonClicked"
                                     HorizontalOptions="Center" />
                         </Grid>
                     </DataTemplate>
